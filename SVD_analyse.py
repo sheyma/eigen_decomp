@@ -13,13 +13,11 @@ print "python version: ", sys.version[0:5]
 print "scipy version: ", scipy.__version__
 print "psutil version: ", psutil.__version__
 
-# singular value decomposition (SVD) of a matrix A (MxN)
-# if the input matrix is dense
-# if all singular values are required
-
+# construct a random matrix sized MxN
 def random_matrix(M, N):
     return np.random.randn(M, N)  # + 1.j*np.random.randn(M,N)
 
+# singular value decomposition (SVD) of matrix A
 def simple_svd(A):
     # try with full_matrices = True
     U, s, Vh = linalg.svd(A, full_matrices=True, compute_uv=True)
@@ -46,9 +44,11 @@ def simple_svd_reduced(A):
     print np.allclose(A, A_check)
     return U, S, Vh
 
+# SVD tranformation with reduced dimensions
 def simple_svd_dim_reduc(A):
     # rank: measure of nondegenareteness
     k_adjust = matrix_rank(A, tol=None)
+    # get eigenvectors corresp. to largest eigenvalues
     U, s, Vh = scipy.sparse.linalg.svds(A, k=k_adjust/2)
     S = np.diag(s)
     return U, S, Vh
@@ -62,10 +62,7 @@ def memory_usage_psutil():
     mem = process.get_memory_info()[0] / float(2 ** 20)
     return mem
 
-#A = random_matrix(1000, 1000)
-
-dims = np.arange(100, 1500 , 20)
-print dims
+dims = np.arange(500, 2000, 20)
 n_iter = dims.shape[0]
 
 memo_svd = np.zeros((n_iter, 1))
@@ -75,27 +72,23 @@ for i in range(0, n_iter):
     M = dims[i]
     N = M
     A = random_matrix(M, N)
-    tmp = memory_usage((linalg.svd, (A,)))
+    tmp = memory_usage((simple_svd, (A,)))
     memo_svd[i] = np.max(tmp)
     tmp = memory_usage((sparse.linalg.svds, (A,)))
     memo_rdc[i] = np.max(tmp)
 
-pl.plot(dims, memo_svd)
-pl.plot(dims, memo_rdc, 'r')
+fig, ax = pl.subplots()
+ax.plot(dims, memo_svd, label='scipy.linalg.svd')
+ax.plot(dims, memo_rdc, 'r', label='scipy.sparse.linalg.svds')
+legend = ax.legend(loc='upper left')
+pl.xlabel('Matrix Size [NxN]', fontsize=18)
+pl.ylabel('Memory Use (MB)', fontsize=18)
+pl.xticks(fontsize=14)
+pl.yticks(fontsize=14)
+
 pl.show()
-# U, S, Vh = simple_svd(A)
-# mem_1 = memory_usage_psutil()
-# print "memory used 01 : ", mem_1, "MB"
-# print memory_usage((linalg.svd, (A,)))
-#
-# U, S, Vh = simple_svd_dim_reduc(A)
-# mem_2 = memory_usage_psutil()
-# print "memory used 02: ", mem_2, "MB"
-# print memory_usage((sparse.linalg.svds, (A,)))
 
 
-
-# U, S, Vh = simple_svd_reduced(A)
 
 
 

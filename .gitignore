@@ -1,0 +1,27 @@
+# doc files
+*.odt
+*.pdf
+
+# tex stuff
+*.aux
+*.bbl
+*.blg
+*.dvi
+*.lof
+*.lot
+*.nav
+*.out
+*.snm
+*.toc
+
+# images
+*.eps
+*.jpg
+
+# data files
+*.csv
+*.dat
+*.mat
+*.txt
+*.gz
+*.xz

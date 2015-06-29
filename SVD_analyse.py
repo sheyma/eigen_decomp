@@ -7,7 +7,9 @@ from scipy.sparse import linalg
 from scipy import sparse, linalg
 import psutil, os
 from memory_profiler import memory_usage
+import time
 import pylab as pl
+
 
 print "python version: ", sys.version[0:5]
 print "scipy version: ", scipy.__version__
@@ -65,8 +67,13 @@ def memory_usage_psutil():
 dims = np.arange(500, 2000, 20)
 n_iter = dims.shape[0]
 
+# zero arrays for memory usage
 memo_svd = np.zeros((n_iter, 1))
 memo_rdc = np.zeros((n_iter, 1))
+
+# time arrays for time consume
+t_svd = np.zeros((n_iter, 1))
+t_rdc = np.zeros((n_iter, 1))
 
 for i in range(0, n_iter):
     M = dims[i]
@@ -74,8 +81,19 @@ for i in range(0, n_iter):
     A = random_matrix(M, N)
     tmp = memory_usage((simple_svd, (A,)))
     memo_svd[i] = np.max(tmp)
-    tmp = memory_usage((sparse.linalg.svds, (A,)))
+    tmp = memory_usage((simple_svd_dim_reduc,(A,)))
     memo_rdc[i] = np.max(tmp)
+
+for i in range(0, n_iter):
+    M = dims[i]
+    N = M
+    A = random_matrix(M, N)
+    t0 = time.time()
+    simple_svd(A)
+    t_svd[i] = time.time() - t0
+    t0 = time.time()
+    simple_svd_dim_reduc(A)
+    t_rdc[i] = time.time() - t0
 
 fig, ax = pl.subplots()
 ax.plot(dims, memo_svd, label='scipy.linalg.svd')
@@ -83,6 +101,15 @@ ax.plot(dims, memo_rdc, 'r', label='scipy.sparse.linalg.svds')
 legend = ax.legend(loc='upper left')
 pl.xlabel('Matrix Size [NxN]', fontsize=18)
 pl.ylabel('Memory Use (MB)', fontsize=18)
+pl.xticks(fontsize=14)
+pl.yticks(fontsize=14)
+
+fig, ax = pl.subplots()
+ax.plot(dims, t_svd, label='scipy.linalg.svd')
+ax.plot(dims, t_rdc, 'r', label='scipy.sparse.linalg.svds')
+legend = ax.legend(loc='upper left')
+pl.xlabel('Matrix Size [NxN]', fontsize=18)
+pl.ylabel('Time (s)', fontsize=18)
 pl.xticks(fontsize=14)
 pl.yticks(fontsize=14)
 

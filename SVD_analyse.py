@@ -1,4 +1,4 @@
-#!/usr/bin/python2.7
+#!/usr/bin/env/python2.7
 # -*- coding: utf-8 -*-
 
 from pylab import *
@@ -64,7 +64,7 @@ def memory_usage_psutil():
     mem = process.get_memory_info()[0] / float(2 ** 20)
     return mem
 
-dims = np.arange(500, 2000, 20)
+dims = np.arange(50, 100, 20)
 n_iter = dims.shape[0]
 
 # zero arrays for memory usage

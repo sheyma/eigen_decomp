@@ -1,4 +1,4 @@
-# @ shell=/bin/bash
+# @ shell=!/bin/bash
 #
 # Sample script for LoadLeveler
 #
@@ -20,3 +20,4 @@
 
 cd /ptmp/${USER}/
 poe /u/${USER}/myprog > prog.out
+python /u/sbayrak/devel/eigen_decomp/SVD_analyse.py

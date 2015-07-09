@@ -2,6 +2,7 @@
 #
 # Sample script for LoadLeveler
 #
+# @ initialdir = /u/sbayrak/devel/eigen_decomp
 # @ error = job.err.$(jobid)
 # @ output = job.out.$(jobid)
 # @ job_type = parallel

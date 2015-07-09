@@ -113,7 +113,7 @@ pl.ylabel('Time (s)', fontsize=18)
 pl.xticks(fontsize=14)
 pl.yticks(fontsize=14)
 
-pl.show()
+#pl.show()
 
 
 

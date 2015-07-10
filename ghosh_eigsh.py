@@ -9,8 +9,8 @@ import numpy as np
 # where conn is a symmetrical connectivity matrix:
 def DoFiedler(conn):
     # prep for embedding
-    # K : matrix of similarities
-    K = (conn + 1) / 2.
+    # K : matrix of similarities / Kernel matrix / Gram matrix
+    K = (conn + 1) / 2. # why ?
     # axis=1 meaning operating over rows, "row sum's of K"
     v = np.sqrt(np.sum(K, axis=1))
     # make a random walk on data, D is diagonal matrix
@@ -18,7 +18,7 @@ def DoFiedler(conn):
     # row-normalization of K gives transition matrix A => A = D^-1 * K
     A = K/D
     del K
-    A = np.squeeze(A * [A > 0])
+    A = np.squeeze(A * [A > 0]) #?
     # diffusion embedding (original value of n_components_embedding=5)
     n_components_embedding = matrix_rank(A) / 2
     # k must be < rank(A)
@@ -37,6 +37,6 @@ def DoFiedler(conn):
 def symmetry(a):
     return a + a.T - np.diag(a.diagonal())
 
-tmp = np.random.randn(12, 12)
+tmp = np.random.randn(10, 10)
 tmp = symmetry(tmp)
 B = DoFiedler(tmp)

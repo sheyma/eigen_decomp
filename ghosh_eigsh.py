@@ -10,7 +10,8 @@ import numpy as np
 def DoFiedler(conn):
     # prep for embedding
     # K : matrix of similarities / Kernel matrix / Gram matrix
-    K = (conn + 1) / 2. # why ?
+    # make conn non-negative, -1<since conn<1
+    K = (conn + 1) / 2.
     # axis=1 meaning operating over rows, "row sum's of K"
     v = np.sqrt(np.sum(K, axis=1))
     # make a random walk on data, D is diagonal matrix
@@ -18,17 +19,15 @@ def DoFiedler(conn):
     # row-normalization of K gives transition matrix A => A = D^-1 * K
     A = K/D
     del K
-    A = np.squeeze(A * [A > 0]) #?
-    # diffusion embedding (original value of n_components_embedding=5)
-    n_components_embedding = matrix_rank(A) / 2
-    # k must be < rank(A)
+    A = np.squeeze(A * [A > 0])
+    n_components_embedding = 5
     lambdas, vectors = eigsh(A, k=n_components_embedding)
     del A
     # sorting eigenvalues and -vectors in descending order
     lambdas = lambdas[::-1]
     vectors = vectors[:, ::-1]
     psi = vectors/vectors[:, 0][:, None]
-    # begin from second largest eigenvalue and
+    # begin from second largest eigenvalue and corr. eigenvector
     lambdas = lambdas[1:] / (1 - lambdas[1:])
     embedding = psi[:, 1:(n_components_embedding + 1)] * lambdas[:n_components_embedding][None, :]
     return embedding

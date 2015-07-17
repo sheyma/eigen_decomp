@@ -115,7 +115,7 @@ int main()
   /* Print eigenvectors */
   /*print_matrix( "Eigenvectors (stored columnwise)", n, n, a, lda );
   /* Free workspace */
-  free( (void*)work );
+  /*free( (void*)work ); */
   
   return 0;
 }

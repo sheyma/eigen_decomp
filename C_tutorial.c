@@ -1,7 +1,9 @@
-/* C_tutorial.c */
-#include <stdio.h>
 #include <stdlib.h>
+#include <stdio.h>
+#include <stdint.h>
 #include <string.h>
+#include <errno.h>
+#include <limits.h>
 
 int integer_add(int x, int y)
 {
@@ -17,7 +19,6 @@ struct database
   float salary;
 };
 
-
 /* LAPACK library, dsyev function */
 /* Intel® Math Kernel Library LAPACK Examples */
 /* https://software.intel.com/sites/products/documentation/doclib/mkl_sa/11/mkl_lapack_examples/*/
@@ -25,10 +26,8 @@ struct database
 /* DSYEV prototype */
 extern void dsyev( char* jobz, char* uplo, int* n, double* a, int* lda,
                 double* w, double* work, int* lwork, int* info );
-
 /* Auxiliary routines prototypes */
 extern void print_matrix( char* desc, int m, int n, double* a, int lda );
-
 /* Parameters */
 #define N 5
 #define LDA N
@@ -39,7 +38,7 @@ int main()
   int sum;
   sum = integer_add( 5, 12);
   printf("The addition of 5 and 12 is %d.\n", sum);
-  
+ 
   char c1;
   c1 = 'A';
   printf("Convert the value of c1 to character: %c\n", c1);
@@ -68,7 +67,7 @@ int main()
   printf("Employee Age: %d\n", employee.age);
   printf("Employee ID-Number: %f\n", employee.salary);
   
-  /* array */
+    /* array */
   double distance[5] = {44.14, 720.52, 96.08, 468.78, 6.28};
   int *ptr_one;
   ptr_one = (int *)malloc(sizeof(int));
@@ -81,8 +80,7 @@ int main()
   printf("%d\n", *ptr_one);
   free(ptr_one);
   
-  /* use function dsyev of LAPACK */
-  
+  /* use function dsyev of LAPACK */ 
   /* Locals */
   int n=N, lda=LDA, info, lwork;
   double wkopt;
@@ -110,15 +108,6 @@ int main()
     printf( "The algorithm failed to compute eigenvalues.\n" );
     exit( 1 );
   }
-  /* Print eigenvalues */
-  /*print_matrix( "Eigenvalues", 1, n, w, 1 );
-  /* Print eigenvectors */
-  /*print_matrix( "Eigenvectors (stored columnwise)", n, n, a, lda );
-  /* Free workspace */
-  /*free( (void*)work ); */
   
   return 0;
 }
-
-
- 

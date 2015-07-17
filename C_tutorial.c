@@ -111,9 +111,9 @@ int main()
     exit( 1 );
   }
   /* Print eigenvalues */
-  print_matrix( "Eigenvalues", 1, n, w, 1 );
+  /*print_matrix( "Eigenvalues", 1, n, w, 1 );
   /* Print eigenvectors */
-  print_matrix( "Eigenvectors (stored columnwise)", n, n, a, lda );
+  /*print_matrix( "Eigenvectors (stored columnwise)", n, n, a, lda );
   /* Free workspace */
   free( (void*)work );
   

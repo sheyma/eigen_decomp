@@ -24,7 +24,7 @@ struct database
 /* https://software.intel.com/sites/products/documentation/doclib/mkl_sa/11/mkl_lapack_examples/*/
 
 /* DSYEV prototype */
-extern void dsyev( char* jobz, char* uplo, int* n, double* a, int* lda,
+extern void dsyev_( char* jobz, char* uplo, int* n, double* a, int* lda,
                 double* w, double* work, int* lwork, int* info );
 /* Auxiliary routines prototypes */
 extern void print_matrix( char* desc, int m, int n, double* a, int lda );
@@ -96,14 +96,14 @@ int main()
     
   };
   
-  printf("LAPACK - dsyev exapmle program results\n");
+  printf("LAPACK - dsyev_ exapmle program results\n");
   /* Query and allocate the optimal workspace */
   lwork = -1;
-  dsyev("Vectors", "Upper", &n, a, &lda, w, &wkopt, &lwork, &info);
+  dsyev_("Vectors", "Upper", &n, a, &lda, w, &wkopt, &lwork, &info);
   lwork = (int)wkopt;
   work = (double*)malloc( lwork*sizeof(double) );
   /* Solve eigenproblem*/
-  dsyev("Vectors", "Upper", &n, a, &lda, w, work, &lwork, &info);
+  dsyev_("Vectors", "Upper", &n, a, &lda, w, work, &lwork, &info);
   if( info > 0 ) {
     printf( "The algorithm failed to compute eigenvalues.\n" );
     exit( 1 );

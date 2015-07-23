@@ -5,6 +5,10 @@
 #include <errno.h>
 #include <limits.h>
 
+/* local run command: */
+/* $ gcc C_tutorial.c -llapack -o C_tutorial */
+/* calling Fortran based function with "_" character, e.g. dsyev_*/
+
 int integer_add(int x, int y)
 {
   int result;
@@ -104,10 +108,24 @@ int main()
   work = (double*)malloc( lwork*sizeof(double) );
   /* Solve eigenproblem*/
   dsyev_("Vectors", "Upper", &n, a, &lda, w, work, &lwork, &info);
+  /* check for convergence */
   if( info > 0 ) {
     printf( "The algorithm failed to compute eigenvalues.\n" );
     exit( 1 );
   }
-  
-  return 0;
+  /* print eigenvalues */
+  print_matrix("Eigenvalues", 1, n, w, 1);
+  /* print eigenvectors */
+  print_matrix("Eigenvectors (stored columnwise)", n, n, a, lda);
+  exit(0);
+}
+
+/* Auxiliary routine: printing a matrix */
+void print_matrix( char* desc, int m, int n, double* a, int lda ) {
+        int i, j;
+        printf( "\n %s\n", desc );
+        for( i = 0; i < m; i++ ) {
+                for( j = 0; j < n; j++ ) printf( " %6.2f", a[i+j*lda] );
+                printf( "\n" );
+        }
 }

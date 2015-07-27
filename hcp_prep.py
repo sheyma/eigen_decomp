@@ -6,23 +6,23 @@ import os
 import numpy as np
 import nibabel as nb
 
-# #set as a local input directory (MPI)
+# # set as a local input directory (MPI)
 # data_path = '/a/documents/connectome/_all'
-# #set a list for the subject ID's
+# # set a list for the subject ID's
 # subject_list = ['100307', '100408', '101006', '101107', '101309']
-# #set as local output directory (HYDRA)
+# # set as local output directory (MPI)
 # out_path = '/home/raid/bayrak/devel/eigen_decomp/hcp_prep_out'
-# template = ('%s/MNINonLinear/Results/rfMRI_REST?_??/rfMRI_REST?_??_Atlas_hp2000_clean.dtseries.nii' % subject)
 
 # set as a local input directory (HYDRA)
 data_path = '/ptmp/mdani/hcp'
 # set a list for the subject ID's
 subject_list = ['100307', '100408', '101006', '101107', '101309']
-# set as local output directory:
+# set as local output directory (HYDRA)
 out_path = '/u/sbayrak/devel/eigen_decomp/hcp_prep_out'
 
 def correlation_matrix(subject):
     template = ('%s/rfMRI_REST?_??_Atlas_hp2000_clean.dtseries.nii' % subject)
+    # template = ('%s/MNINonLinear/Results/rfMRI_REST?_??/rfMRI_REST?_??_Atlas_hp2000_clean.dtseries.nii' % subject)
     files = [val for val in sorted(glob(os.path.join(data_path, template)))]
     filename = files[:2]
 
@@ -65,7 +65,7 @@ def save_output(subject, matrix):
     print filename
     out_file = os.path.join(out_dir, filename)
     # %.e = Floating point exponential format (lowercase)
-    np.savetxt(out_file, matrix, fmt='%e', delimiter='\t', newline='\n')
+    np.savetxt(out_file, matrix, fmt='%5.5e', delimiter='\t', newline='\n')
     return out_file
 
 K = correlation_matrix(subject_list[0])

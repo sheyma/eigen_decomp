@@ -1,5 +1,5 @@
-# First it is necessary to install a branch of nibabel from satra that can read cifti (nifti2) files:
-# pip install git+https://github.com/satra/nibabel.git@enh/cifti2
+# read-in cifti (nifti2) format via Satra's nibabel repository:
+# $git clone --branch enh/cifti2 https://github.com/satra/nibabel.git
 
 from glob import glob
 import os
@@ -7,9 +7,10 @@ import numpy as np
 import nibabel as nb
 import sys
 
-print "python version: ", sys.version[0:5] # 2.7.3 (MPI)
-print "numpy version: ", np.__version__ # 1.9.1 (MPI) - choose it!
-print "nibabel version: ", nb.__version__ # 2.1.0dev (MPI)
+print "python version: ", sys.version[0:5]
+# (HYDRA) 2.7.9
+print "numpy version: ", np.__version__
+# (HYDRA) 1.9.1
 
 # # set as a local input directory (MPI)
 # data_path = '/a/documents/connectome/_all'
@@ -73,5 +74,7 @@ def save_output(subject, matrix):
     np.savetxt(out_file, matrix, fmt='%5.5e', delimiter='\t', newline='\n')
     return out_file
 
-K = correlation_matrix(subject_list[3])
-save_output(subject_list[3], K)
+# calculate correlation matrices for all subjects and save them
+for i in range(0, len(subject_list)):
+    K = correlation_matrix(subject_list[i])
+    save_output(subject_list[i], K)

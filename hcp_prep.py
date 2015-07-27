@@ -10,12 +10,16 @@ import nibabel as nb
 data_path = '/a/documents/connectome/_all'
 # set a list for the subject ID's
 subject_list = ['100307', '100408', '101006', '101107', '101309']
-# set as local output directory:
-out_path = '/home/raid/bayrak/devel/eigen_decomp'
+# set as local output directory (HYDRA)
+out_path = '/home/raid/bayrak/devel/eigen_decomp/hcp_prep_out'
 
+# #set as a local input directory (HYDRA)
 # data_path = '/ptmp/mdani/hcp'
+# #set a list for the subject ID's
+# subject_list = ['100307', '100408', '101006', '101107', '101309']
+# #set as local output directory:
+# out_path = '/u/sbayrak/devel/eigen_decomp'
 # template = ('%s/rfMRI_REST?_??_Atlas_hp2000_clean.dtseries.nii' % subject)
-# img = nb.load('/ptmp/mdani/hcp/100307/rfMRI_REST1_LR_Atlas_hp2000_clean.dtseries.nii')
 
 def correlation_matrix(subject):
     template = ('%s/MNINonLinear/Results/rfMRI_REST?_??/rfMRI_REST?_??_Atlas_hp2000_clean.dtseries.nii' % subject)
@@ -37,7 +41,7 @@ def correlation_matrix(subject):
         # for only left hemisphere: brainModels[1]
 
         header = img.header.matrix.mims[1].brainModels[2].indexOffset
-        single_t_series = img.data[:, :header].T
+        single_t_series = img.data[:, :100].T
 
         mean_series = single_t_series.mean(axis=0)
         std_series = single_t_series.std(axis=0)
@@ -53,18 +57,16 @@ def correlation_matrix(subject):
 
     return K
 
-
 def save_output(subject, matrix):
-    out_dir = os.path.join(out_path, subject)
+    out_dir = os.path.join(out_path)
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
-    filename = subject + '_hcp_out.csv'
+    filename = subject + '_hcp_prep_out.csv'
     print filename
     out_file = os.path.join(out_dir, filename)
     # %.e = Floating point exponential format (lowercase)
     np.savetxt(out_file, matrix, fmt='%e', delimiter='\t', newline='\n')
     return out_file
-
 
 K = correlation_matrix(subject_list[0])
 save_output(subject_list[0], K)

@@ -5,6 +5,11 @@ from glob import glob
 import os
 import numpy as np
 import nibabel as nb
+import sys
+
+print "python version: ", sys.version[0:5] # 2.7.3 (MPI)
+print "numpy version: ", np.__version__ # 1.6.1 (MPI)
+print "nibabel version: ", nb.__version__ # 2.1.0dev (MPI)
 
 # # set as a local input directory (MPI)
 # data_path = '/a/documents/connectome/_all'

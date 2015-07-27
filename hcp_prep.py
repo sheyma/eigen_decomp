@@ -58,10 +58,11 @@ def save_output(subject, matrix):
     out_dir = os.path.join(out_path, subject)
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
-    filename = 'bla'
+    filename = subject + '_hcp_out.csv'
+    print filename
     out_file = os.path.join(out_dir, filename)
-
-    np.savetxt(out_file, matrix, fmt='%.3e', delimiter='\t', newline='\n')
+    # %.e = Floating point exponential format (lowercase)
+    np.savetxt(out_file, matrix, fmt='%e', delimiter='\t', newline='\n')
     return out_file
 
 

@@ -47,7 +47,7 @@ def correlation_matrix(subject):
         # for only left hemisphere: brainModels[1]
 
         header = img.header.matrix.mims[1].brainModels[2].indexOffset
-        single_t_series = img.data[:, :100].T
+        single_t_series = img.data[:, :header].T
 
         mean_series = single_t_series.mean(axis=0)
         std_series = single_t_series.std(axis=0)

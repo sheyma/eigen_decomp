@@ -7,8 +7,8 @@
 # @ output = job.out.$(jobid)
 # @ job_type = parallel
 # @ node_usage= not_shared
-# @ node = 32
-# @ tasks_per_node = 16
+# @ node = 1
+# @ tasks_per_node = 1
 # @ resources = ConsumableCpus(1)
 # @ network.MPI = sn_all,not_shared,us
 # @ wall_clock_limit = 24:00:00
@@ -19,5 +19,5 @@
 # run the program
 
 cd /ptmp/${USER}/
-poe /u/${USER}/myprog > prog.out
-python /u/sbayrak/devel/eigen_decomp/SVD_analyse.py
+poe /u/${USER}/devel/eigen_decomp/test_batch.cmd > prog.out
+python /u/sbayrak/devel/eigen_decomp/hcp_prep.py

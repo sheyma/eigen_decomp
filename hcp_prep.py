@@ -66,12 +66,12 @@ def save_output(subject, matrix):
     out_dir = os.path.join(out_path)
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
-    filename = subject + '_bla.csv'
+    filename = subject + '_hcp_prep_out.csv'
     print filename
     out_file = os.path.join(out_dir, filename)
     # %.e = Floating point exponential format (lowercase)
     np.savetxt(out_file, matrix, fmt='%5.5e', delimiter='\t', newline='\n')
     return out_file
 
-K = correlation_matrix(subject_list[4])
-save_output(subject_list[4], K)
+K = correlation_matrix(subject_list[3])
+save_output(subject_list[3], K)

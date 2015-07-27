@@ -8,26 +8,26 @@ import nibabel as nb
 import sys
 
 print "python version: ", sys.version[0:5] # 2.7.3 (MPI)
-print "numpy version: ", np.__version__ # 1.6.1 (MPI)
+print "numpy version: ", np.__version__ # 1.9.1 (MPI) - choose it!
 print "nibabel version: ", nb.__version__ # 2.1.0dev (MPI)
 
-# # set as a local input directory (MPI)
-# data_path = '/a/documents/connectome/_all'
-# # set a list for the subject ID's
-# subject_list = ['100307', '100408', '101006', '101107', '101309']
-# # set as local output directory (MPI)
-# out_path = '/home/raid/bayrak/devel/eigen_decomp/hcp_prep_out'
-
-# set as a local input directory (HYDRA)
-data_path = '/ptmp/mdani/hcp'
+# set as a local input directory (MPI)
+data_path = '/a/documents/connectome/_all'
 # set a list for the subject ID's
 subject_list = ['100307', '100408', '101006', '101107', '101309']
-# set as local output directory (HYDRA)
-out_path = '/u/sbayrak/devel/eigen_decomp/hcp_prep_out'
+# set as local output directory (MPI)
+out_path = '/home/raid/bayrak/devel/eigen_decomp/hcp_prep_out'
+
+# # set as a local input directory (HYDRA)
+# data_path = '/ptmp/mdani/hcp'
+# # set a list for the subject ID's
+# subject_list = ['100307', '100408', '101006', '101107', '101309']
+# # set as local output directory (HYDRA)
+# out_path = '/u/sbayrak/devel/eigen_decomp/hcp_prep_out'
 
 def correlation_matrix(subject):
-    template = ('%s/rfMRI_REST?_??_Atlas_hp2000_clean.dtseries.nii' % subject)
-    # template = ('%s/MNINonLinear/Results/rfMRI_REST?_??/rfMRI_REST?_??_Atlas_hp2000_clean.dtseries.nii' % subject)
+    # template = ('%s/rfMRI_REST?_??_Atlas_hp2000_clean.dtseries.nii' % subject)
+    template = ('%s/MNINonLinear/Results/rfMRI_REST?_??/rfMRI_REST?_??_Atlas_hp2000_clean.dtseries.nii' % subject)
     files = [val for val in sorted(glob(os.path.join(data_path, template)))]
     filename = files[:2]
 
@@ -66,12 +66,12 @@ def save_output(subject, matrix):
     out_dir = os.path.join(out_path)
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
-    filename = subject + '_hcp_prep_out.csv'
+    filename = subject + '_bla.csv'
     print filename
     out_file = os.path.join(out_dir, filename)
     # %.e = Floating point exponential format (lowercase)
     np.savetxt(out_file, matrix, fmt='%5.5e', delimiter='\t', newline='\n')
     return out_file
 
-K = correlation_matrix(subject_list[0])
-save_output(subject_list[0], K)
+K = correlation_matrix(subject_list[4])
+save_output(subject_list[4], K)

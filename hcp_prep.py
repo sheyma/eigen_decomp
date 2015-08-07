@@ -30,7 +30,7 @@ def correlation_matrix(subject):
     template = ('%s/rfMRI_REST?_??_Atlas_hp2000_clean.dtseries.nii' % subject)
     # template = ('%s/MNINonLinear/Results/rfMRI_REST?_??/rfMRI_REST?_??_Atlas_hp2000_clean.dtseries.nii' % subject)
     files = [val for val in sorted(glob(os.path.join(data_path, template)))]
-    filename = files[:2]
+    filename = files[:4]
 
     # read in data and create correlation matrix:
     # for left hemisphere; 'range(0,nsamples)' for all ??
@@ -47,7 +47,7 @@ def correlation_matrix(subject):
         # for only left hemisphere: brainModels[1]
 
         header = img.header.matrix.mims[1].brainModels[2].indexOffset
-        single_t_series = img.data[:, :header].T
+        single_t_series = img.data[:, :8000].T
 
         mean_series = single_t_series.mean(axis=0)
         std_series = single_t_series.std(axis=0)
@@ -75,6 +75,6 @@ def save_output(subject, matrix):
     return out_file
 
 # calculate correlation matrices for all subjects and save them
-for i in range(0, len(subject_list)):
-    K = correlation_matrix(subject_list[i])
-    save_output(subject_list[i], K)
+#for i in range(0, len(subject_list)):
+K = correlation_matrix(subject_list[0])
+#save_output(subject_list[i], K)

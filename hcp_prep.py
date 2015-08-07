@@ -24,7 +24,7 @@ data_path = '/ptmp/mdani/hcp'
 # set a list for the subject ID's
 subject_list = ['100307', '100408', '101006', '101107', '101309']
 # set as local output directory (HYDRA)
-out_path = '/u/sbayrak/devel/eigen_decomp/hcp_prep_out'
+out_path = '/ptmp/sbayrak/hcp_prep_out'
 
 def correlation_matrix(subject):
     template = ('%s/rfMRI_REST?_??_Atlas_hp2000_clean.dtseries.nii' % subject)
@@ -47,7 +47,7 @@ def correlation_matrix(subject):
         # for only left hemisphere: brainModels[1]
 
         header = img.header.matrix.mims[1].brainModels[2].indexOffset
-        single_t_series = img.data[:, :8000].T
+        single_t_series = img.data[:, :header].T
 
         mean_series = single_t_series.mean(axis=0)
         std_series = single_t_series.std(axis=0)
@@ -75,6 +75,6 @@ def save_output(subject, matrix):
     return out_file
 
 # calculate correlation matrices for all subjects and save them
-#for i in range(0, len(subject_list)):
-K = correlation_matrix(subject_list[0])
-#save_output(subject_list[i], K)
+for i in range(0, len(subject_list)):
+    K = correlation_matrix(subject_list[i])
+    save_output(subject_list[i], K)

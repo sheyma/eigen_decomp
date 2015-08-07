@@ -38,8 +38,8 @@ def correlation_matrix(subject):
 
     tmp_t_series = []
     for x in xrange(0, 4):
-        # why is it not filename[x]?
-        img = nb.load(filename[0])
+
+        img = nb.load(filename[x])
         # ntimepoints, nsamples = img.data.shape
 
         # the following should be a concatenation of all 4 scans from each subject:

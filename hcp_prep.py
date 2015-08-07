@@ -19,17 +19,14 @@ print "numpy version: ", np.__version__
 # # set as local output directory (MPI)
 # out_path = '/home/raid/bayrak/devel/eigen_decomp/hcp_prep_out'
 
-# set as a local input directory (HYDRA)
-data_path = '/ptmp/mdani/hcp'
-# set a list for the subject ID's
-subject_list = ['100307', '100408', '101006', '101107', '101309']
+subject = sys.argv[1] # e.g. /ptmp/mdani/hcp/100307
 # set as local output directory (HYDRA)
 out_path = '/ptmp/sbayrak/hcp_prep_out'
 
 def correlation_matrix(subject):
-    template = ('%s/rfMRI_REST?_??_Atlas_hp2000_clean.dtseries.nii' % subject)
+    template = 'rfMRI_REST?_??_Atlas_hp2000_clean.dtseries.nii'
     # template = ('%s/MNINonLinear/Results/rfMRI_REST?_??/rfMRI_REST?_??_Atlas_hp2000_clean.dtseries.nii' % subject)
-    files = [val for val in sorted(glob(os.path.join(data_path, template)))]
+    files = [val for val in sorted(glob(os.path.join(subject, template)))]
     filename = files[:4]
 
     # read in data and create correlation matrix:
@@ -67,14 +64,13 @@ def save_output(subject, matrix):
     out_dir = os.path.join(out_path)
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
-    filename = subject + '_hcp_prep_out.csv'
+    filename = os.path.basename(subject) + '_hcp_prep_out.csv'
     print filename
     out_file = os.path.join(out_dir, filename)
     # %.e = Floating point exponential format (lowercase)
     np.savetxt(out_file, matrix, fmt='%5.5e', delimiter='\t', newline='\n')
     return out_file
 
-# calculate correlation matrices for all subjects and save them
-for i in range(0, len(subject_list)):
-    K = correlation_matrix(subject_list[i])
-    save_output(subject_list[i], K)
+# calculate correlation matrices for the subject directory save it
+K = correlation_matrix(subject)
+save_output(subject, K)

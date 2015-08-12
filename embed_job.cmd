@@ -26,3 +26,4 @@ echo "#### end env"
 # here we go
 
 /usr/bin/time -v python /u/${USER}/devel/eigen_decomp/test_embed.py /ptmp/sbayrak/hcp_prep_out/100307_hcp_prep_out.csv
+

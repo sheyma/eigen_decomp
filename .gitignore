@@ -35,3 +35,4 @@
 compute_embeddings_all.py
 dist_check_fiedler.ipynb
 fiedler4seyma.py
+embed_seyma.py

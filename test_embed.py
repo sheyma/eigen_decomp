@@ -43,7 +43,7 @@ def save_output(subject, embed_matrix):
     return out_file
 
 embedding, result = embed.compute_diffusion_map(L, alpha=0, n_components=5, 
-diffusion_time=0)
+diffusion_time=0, skip_checks=True, overwrite=True)
 
 save_output(subject, embedding)
 

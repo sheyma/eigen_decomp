@@ -9,7 +9,7 @@
 # @ node = 1
 # @ tasks_per_node = 1
 # @ resources = ConsumableCpus(4)
-# @ node_resources = ConsumableMemory(90gb)
+# @ node_resources = ConsumableMemory(55gb)
 # @ network.MPI = sn_all,not_shared,us
 # @ wall_clock_limit = 24:00:00
 # @ notification = complete

@@ -29,6 +29,10 @@
 *.gz
 *.xz
 
+# job outputs
+*.err
+*.out
+
 # some scripts & dir's
 .idea/
 .ipynb_checkpoints/

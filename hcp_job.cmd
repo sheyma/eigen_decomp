@@ -2,16 +2,16 @@
 #
 # Sample script for LoadLeveler
 #
-# @ error = job.$(jobid).err
-# @ output = job.$(jobid).out
+# @ error = /ptmp/sbayrak/hcp_job_stat/job.$(jobid).err
+# @ output = /ptmp/sbayrak/hcp_job_stat/job.$(jobid).out
 # @ job_type = parallel
 # @ node_usage= not_shared
 # @ node = 1
 # @ tasks_per_node = 1
-# @ resources = ConsumableCpus(4)
-# @ node_resources = ConsumableMemory(100gb)
+# @ resources = ConsumableCpus(16)
+# @ node_resources = ConsumableMemory(120gb)
 # @ network.MPI = sn_all,not_shared,us
-# @ wall_clock_limit = 24:00:00
+# @ wall_clock_limit = 01:30:00
 # @ notification = complete
 # @ notify_user = $(user)@rzg.mpg.de
 # @ queue
@@ -25,4 +25,4 @@ echo "#### end env"
 
 # here we go
 
-/usr/bin/time -v python /u/${USER}/devel/eigen_decomp/hcp_prep.py
+/usr/bin/time -v python /u/${USER}/devel/eigen_decomp/hcp_prep.py /ptmp/sbayrak/hcp/%SUBJ_ID%

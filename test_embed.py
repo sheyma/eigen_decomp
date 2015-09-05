@@ -29,8 +29,6 @@ def load_matrix(file):
             b[i,:] = np.array(row)
     return b
 
-L = load_matrix(subject)
-
 def save_output(subject, embed_matrix):
     out_dir = os.path.join(out_path)
     if not os.path.exists(out_dir):
@@ -42,6 +40,7 @@ def save_output(subject, embed_matrix):
     np.savetxt(out_file, embed_matrix, fmt='%5.5e', delimiter='\t', newline='\n')
     return out_file
 
+L = load_matrix(subject)
 embedding, result = embed.compute_diffusion_map(L, alpha=0, n_components=20, 
 diffusion_time=0, skip_checks=True, overwrite=True)
 

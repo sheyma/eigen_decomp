@@ -34,15 +34,20 @@ echo "#### end env"
 EOF
 ## end define JOB_TEMPLATE ################################
 
-
 rm -f tmp_jobs/*
 
 for d in /ptmp/sbayrak/hcp/*; do
 	subject=$(basename "$d")
-	count=$(ls $d | wc -l); 
-	if test "$count" = "4"; then
-		job_file=tmp_jobs/job_${subject}.cmd
-		echo "$JOB_TEMPLATE" | sed "s/%SUBJ_ID%/$subject/g" > "$job_file"
-	fi
-done
 
+	# check if embedding is already applied to the subject
+	if test -f /ptmp/sbayrak/embed_out/${subject}_embed_out.csv; then
+		count=$(ls $d | wc -l);
+
+		# check if subjects have only 4 files
+		if test "$count" = "4" ; then
+			job_file=tmp_jobs/job_${subject}.cmd
+			echo "$JOB_TEMPLATE" | sed "s/%SUBJ_ID%/$subject/g" > "$job_file"
+		fi 
+	fi
+
+done

@@ -16,6 +16,8 @@
 # @ notify_user = $(user)@rzg.mpg.de
 # @ queue
 
+export OMP_NUM_THREADS=16
+
 echo "#### begin env"
 hostname -f
 free
@@ -25,4 +27,4 @@ echo "#### end env"
 
 # here we go
 
-/usr/bin/time -v python /u/${USER}/devel/eigen_decomp/hcp_prep.py /ptmp/sbayrak/hcp/%SUBJ_ID%
+/usr/bin/time -v poe python /u/${USER}/devel/eigen_decomp/hcp_prep.py /ptmp/sbayrak/hcp/%SUBJ_ID%

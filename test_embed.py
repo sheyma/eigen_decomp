@@ -15,23 +15,12 @@ satra_path = sys.path.append('/u/sbayrak/devel/mapalign/mapalign')
 import embed 
 
 infile = sys.argv[1]
-# e.g. /ptmp/sbayrak/hcp_prep_out/100307......
+# e.g. /ptmp/sbayrak/hcp/%SUBJ_ID% (HYDRA)
+
 subject = os.path.basename(infile)[0:6]
 
 out_path = '/ptmp/sbayrak/embed_out'
 # set as local output directory (HYDRA)
-
-# a replacement for numpy.loadtxt() which used 5 times more memory than needed
-def load_matrix(file):
-    n = -1
-    with open(file, 'r') as f:
-        reader = csv.reader(f,'excel-tab')
-        for i, row in enumerate(reader):
-            if n < 0:
-                n = len(row)
-                b = np.zeros((n,n))
-            b[i,:] = np.array(row)
-    return b
 
 # load .nii files and calculate correlation matrix (hcp_prep)
 def correlation_matrix(subject):
@@ -81,9 +70,6 @@ def save_output(subject, embed_matrix):
     np.savetxt(out_file, embed_matrix, fmt='%5.5e', delimiter='\t', newline='\n')
     return out_file
 
-# load correlation matrix from text file
-#L = load_matrix(infile)
-
 # calculate correlation matrices from the subject directory save it
 L = correlation_matrix(infile)
 
@@ -91,6 +77,7 @@ print "correlation matrix:", L.shape
 
 embedding, result = embed.compute_diffusion_map(L, alpha=0, n_components=20,
     diffusion_time=0, skip_checks=True, overwrite=True)
+
 save_output(subject, embedding)
 
 print result['lambdas']

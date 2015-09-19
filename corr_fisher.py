@@ -83,13 +83,10 @@ N = len(subject_list)
 for i in range(0, N):
     subject = subject_list[i]
     K = correlation_matrix(subject)
-    K = fisher_r2z(K)
     if i == 0:
-        SUM = K.copy()
-    else:
-        SUM = SUM + K
-
-del K
+        SUM = np.zeros(K.shape,K.dtype)
+    SUM += fisher_r2z(K)
+    del K
 
 SUM /= float(N)
 SUM = fisher_z2r(SUM)

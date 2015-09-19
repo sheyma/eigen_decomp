@@ -48,8 +48,12 @@ def load_nii_subject(subject):
     del tmp_t_series
     return K
 
+def load_random_subject(n,m):
+    return np.random.randn(n, m)
+
 def correlation_matrix(subject):
     K = load_nii_subject(subject)
+    #K = load_random_subject(4000,4800)
     # K : matrix of similarities / Kernel matrix / Gram matrix
     K = np.corrcoef(K)
     return K
@@ -85,10 +89,11 @@ for i in range(0, N):
     else:
         SUM = SUM + K
 
-#del K
+del K
 
 SUM /= float(N)
-
 SUM = fisher_z2r(SUM)
 
-np.allclose(K, SUM)
+# Just testing ... the diagonal of the average correlation matrix should be 1.0
+di = np.diag_indices(SUM.shape[1])
+print np.allclose(SUM[di], 1.0)

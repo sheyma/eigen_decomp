@@ -13,10 +13,7 @@ print "python version: ", sys.version[0:5]
 print "numpy version: ", np.__version__
 # (HYDRA) 1.9.1
 
-subject_list = np.array(sys.argv)[1:] # e.g. /ptmp/sbayrak/hcp/100307
-N = len(subject_list)
-
-def correlation_matrix(subject):
+def load_nii_subject(subject):
     template = 'rfMRI_REST?_??_Atlas_hp2000_clean.dtseries.nii'
     # template = ('%s/MNINonLinear/Results/rfMRI_REST?_??/rfMRI_REST?_??_Atlas_hp2000_clean.dtseries.nii' % subject)
     files = [val for val in sorted(glob(os.path.join(subject, template)))]
@@ -47,10 +44,14 @@ def correlation_matrix(subject):
         del img
         del single_t_series
 
-    # K : matrix of similarities / Kernel matrix / Gram matrix
-    K = np.corrcoef(np.array(tmp_t_series).T) 
+    K = np.array(tmp_t_series).T
     del tmp_t_series
+    return K
 
+def correlation_matrix(subject):
+    K = load_nii_subject(subject)
+    # K : matrix of similarities / Kernel matrix / Gram matrix
+    K = np.corrcoef(K)
     return K
 
 def fisher_r2z(R):
@@ -71,6 +72,10 @@ def fisher_z2r(Z):
 	R[di] = 1.0
 	return R
 
+# here we go ...
+
+subject_list = np.array(sys.argv)[1:] # e.g. /ptmp/sbayrak/hcp/100307
+N = len(subject_list)
 
 for i in range(0, N):
 	subject = subject_list[i]

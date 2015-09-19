@@ -55,22 +55,21 @@ def correlation_matrix(subject):
     return K
 
 def fisher_r2z(R):
-	# convert 1.0's into largest smaller value than 1.0
-	di = np.diag_indices(R.shape[1])
-	epsilon = np.finfo(float).eps
-	R[di] = 1.0 - epsilon
-	# Fisher r to z transform 
-	Z = np.arctanh(R)
-	return Z 
-	
-	
+    # convert 1.0's into largest smaller value than 1.0
+    di = np.diag_indices(R.shape[1])
+    epsilon = np.finfo(float).eps
+    R[di] = 1.0 - epsilon
+    # Fisher r to z transform 
+    Z = np.arctanh(R)
+    return Z 
+
 def fisher_z2r(Z):
-	# Fisher z to r transform
-	R = (np.exp(2*Z) - 1)/(np.exp(2*Z) +1)
-	# set diagonals back to 1.0
-	di = np.diag_indices(R.shape[1])
-	R[di] = 1.0
-	return R
+    # Fisher z to r transform
+    R = (np.exp(2*Z) - 1)/(np.exp(2*Z) +1)
+    # set diagonals back to 1.0
+    di = np.diag_indices(R.shape[1])
+    R[di] = 1.0
+    return R
 
 # here we go ...
 
@@ -78,13 +77,13 @@ subject_list = np.array(sys.argv)[1:] # e.g. /ptmp/sbayrak/hcp/100307
 N = len(subject_list)
 
 for i in range(0, N):
-	subject = subject_list[i]
-	K = correlation_matrix(subject)
-	K = fisher_r2z(K)
-	if i == 0:
-		SUM = K.copy()
-	else:
-		SUM = SUM + K
+    subject = subject_list[i]
+    K = correlation_matrix(subject)
+    K = fisher_r2z(K)
+    if i == 0:
+        SUM = K.copy()
+    else:
+        SUM = SUM + K
 
 #del K
 

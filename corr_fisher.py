@@ -81,10 +81,10 @@ for i in range(0, N):
 	else:
 		SUM = SUM + K
 
-del K
+#del K
 
 SUM /= float(N)
 
 SUM = fisher_z2r(SUM)
 
-
+np.allclose(K, SUM)

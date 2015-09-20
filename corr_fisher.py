@@ -89,6 +89,9 @@ def correlation_matrix(subject):
     return K
 
 def fisher_r2z(R):
+    return np.arctanh(R)
+
+def old_fisher_r2z(R):
     # convert 1.0's into largest smaller value than 1.0
     di = np.diag_indices(R.shape[1])
     epsilon = np.finfo(float).eps
@@ -98,12 +101,43 @@ def fisher_r2z(R):
     return Z 
 
 def fisher_z2r(Z):
+    X=np.exp(2*Z)
+    return (X - 1) / (X + 1)
+
+def old_fisher_z2r(Z):
     # Fisher z to r transform
     R = (np.exp(2*Z) - 1)/(np.exp(2*Z) +1)
     # set diagonals back to 1.0
     di = np.diag_indices(R.shape[1])
     R[di] = 1.0
     return R
+
+def mat_to_upper(A):
+    if not A.flags['C_CONTIGUOUS']:
+        raise Exception("C_CONTIGUOUS required")
+    n = A.shape[0]
+    size = (n - 1) * n / 2
+    U = A.reshape([n*n,])
+    k = 0
+    for i in range(0, n-1):
+        len = n - 1 - i
+        U[k:k+len] = A[i,i+1:n]
+        k += len
+    return size
+
+def upper_to_mat(M):
+    if not M.flags['C_CONTIGUOUS']:
+        raise Exception("C_CONTIGUOUS required")
+    n = M.shape[0]
+    size = (n - 1) * n / 2
+    U = M.reshape([n*n,])
+    k = size
+    for i in range(n-1, -1, -1):
+        len = n - 1 - i
+        M[i+1:n,i] = U[k-len:k]
+        M[i,i+1:n] = U[k-len:k]
+        M[i,i] = 1.0
+        k -= len
 
 last_time = 0
 
@@ -130,6 +164,11 @@ for i in range(0, N):
 
     set_time()
 
+    # For the next calculations we only use the upper triangular matrix!
+    size = mat_to_upper(K)
+    K.resize([size,])
+    print_time("mat_to_upper:")
+
     K = fisher_r2z(K)
     print_time("fisher_r2z:")
 
@@ -148,6 +187,11 @@ SUM /= float(N)
 print_time("final division:")
 SUM = fisher_z2r(SUM)
 print_time("final fisher_z2r:")
+
+n_orig = int(round( 0.5 + np.sqrt(0.25 + 2 * SUM.shape[0]) ))
+SUM.resize([n_orig,n_orig])
+upper_to_mat(SUM)
+print_time("final upper_to_mat:")
 
 print "do embed for correlation matrix:", SUM.shape
 embedding, result = embed.compute_diffusion_map(SUM, alpha=0, n_components=20,

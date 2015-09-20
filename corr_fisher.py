@@ -11,44 +11,66 @@ import math
 sys.path.append(os.path.expanduser('~/devel/mapalign/mapalign'))
 import embed
 
+# fake this for testing: 8095...0.5 GB, 11448...1 GB, 16190...2 GB
+#NN = 11448
+
 print "python version: ", sys.version[0:5]
 # (HYDRA) 2.7.9
 print "numpy version: ", np.__version__
 # (HYDRA) 1.9.1
 
-def load_nii_subject(subject):
+def load_nii_subject(subject, dtype=None):
     template = 'rfMRI_REST?_??_Atlas_hp2000_clean.dtseries.nii'
-    # template = ('%s/MNINonLinear/Results/rfMRI_REST?_??/rfMRI_REST?_??_Atlas_hp2000_clean.dtseries.nii' % subject)
+    cnt_files = 4
     files = [val for val in sorted(glob(os.path.join(subject, template)))]
-    filename = files[:4]
+    files = files[:cnt_files]
 
     # read in data and create correlation matrix:
     # for left hemisphere; 'range(0,nsamples)' for all ??
     # data_range = range(0,32492) ??
 
-    tmp_t_series = []
-    for x in xrange(0, 4):
+    for x in xrange(0, cnt_files):
 
-        img = nb.load(filename[x])
+        img = nb.load(files[x])
         # ntimepoints, nsamples = img.data.shape
 
         # the following should be a concatenation of all 4 scans from each subject:
         # brainModels[2] will include both left and right hemispheres
         # for only left hemisphere: brainModels[1]
 
-        header = img.header.matrix.mims[1].brainModels[2].indexOffset
-        single_t_series = img.data[:, :header].T
+        # count of time series
+        n = img.header.matrix.mims[1].brainModels[2].indexOffset
+
+        # globally faked ... for testing
+        if 'NN' in globals():
+            n = min(NN,n)
+
+        single_t_series = img.data[:, :n].T
+        # length of time series
+        m = single_t_series.shape[1]
 
         mean_series = single_t_series.mean(axis=0)
         std_series = single_t_series.std(axis=0)
 
-        tmp_t_series.extend(((single_t_series - mean_series) / std_series).T)
+        if x == 0:
+            # In first loop we initialize matrix K to be filled up and returned.
+            # By default we are using the same dtype like input file (float32).
+            init_dtype = single_t_series.dtype if dtype == None else dtype
+            K = np.ndarray(shape=[n,m], dtype=init_dtype, order='F')
+        else:
+            if  m_last != m:
+                print "Warning, %s contains time series of different length" % (subject)
+            if  n_last != n:
+                print "Warning, %s contains different count of time series" % (subject)
+            K.resize([n, K.shape[1] + m])
+
+        K[:, -m:] = (single_t_series - mean_series) / std_series
+        m_last = m
+        n_last = n
 
         del img
         del single_t_series
 
-    K = np.array(tmp_t_series).T
-    del tmp_t_series
     return K
 
 def load_random_subject(n,m):

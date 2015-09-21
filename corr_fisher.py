@@ -134,8 +134,9 @@ for i in range(0, N):
     print_time("fisher_r2z:")
 
     if i == 0:
-        SUM = np.zeros(K.shape,K.dtype)
-    SUM = SUM + K
+        SUM = K
+    else:
+        SUM += K
     print_time("sum:")
 
     del K

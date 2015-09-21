@@ -79,6 +79,22 @@ def load_nii_subject(subject, dtype=None):
 def load_random_subject(n,m):
     return np.random.randn(n, m)
 
+# This is corrcoef from numpy 1.9.2 ... mem usage optimized
+def corrcoef_upper(x):
+    c = np.cov(x)
+    print_time("cov:")
+    d = np.diag(c).copy()
+    size = mat_to_upper(c)
+    c.resize([size,])
+    print_time ("mat_to_upper c:")
+    d = np.sqrt(d)
+    d = np.multiply.outer(d, d)
+    print_time ("outer d:")
+    size = mat_to_upper(d)
+    d.resize([size,])
+    print_time ("mat_to_upper d:")
+    return ne.evaluate('c / d')
+
 def correlation_matrix(subject):
     set_time()
     K = load_nii_subject(subject)
@@ -86,7 +102,7 @@ def correlation_matrix(subject):
     # K : matrix of similarities / Kernel matrix / Gram matrix
     print_time("load:")
     print "input data shape:", K.shape
-    K = np.corrcoef(K)
+    K = corrcoef_upper(K)
     print_time("corrcoef:")
     return K
 
@@ -167,9 +183,6 @@ for i in range(0, N):
     set_time()
 
     # For the next calculations we only use the upper triangular matrix!
-    size = mat_to_upper(K)
-    K.resize([size,])
-    print_time("mat_to_upper:")
 
     K = fisher_r2z(K)
     print_time("fisher_r2z:")

@@ -4,6 +4,8 @@
 from glob import glob
 import os
 import numpy as np
+import numexpr as ne
+ne.set_num_threads(ne.ncores) # inclusive HyperThreading cores
 import nibabel as nb
 import sys
 import math
@@ -89,7 +91,7 @@ def correlation_matrix(subject):
     return K
 
 def fisher_r2z(R):
-    return np.arctanh(R)
+    return ne.evaluate('arctanh(R)')
 
 def old_fisher_r2z(R):
     # convert 1.0's into largest smaller value than 1.0
@@ -101,8 +103,8 @@ def old_fisher_r2z(R):
     return Z 
 
 def fisher_z2r(Z):
-    X=np.exp(2*Z)
-    return (X - 1) / (X + 1)
+    X = ne.evaluate('exp(2*Z)')
+    return ne.evaluate('(X - 1) / (X + 1)')
 
 def old_fisher_z2r(Z):
     # Fisher z to r transform
@@ -175,7 +177,7 @@ for i in range(0, N):
     if i == 0:
         SUM = K
     else:
-        SUM += K
+        SUM = ne.evaluate('SUM + K')
     print_time("sum:")
 
     del K
@@ -183,7 +185,7 @@ for i in range(0, N):
 print "loop done"
 print
 
-SUM /= float(N)
+SUM = ne.evaluate('SUM / N')
 print_time("final division:")
 SUM = fisher_z2r(SUM)
 print_time("final fisher_z2r:")

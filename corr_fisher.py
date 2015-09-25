@@ -174,7 +174,7 @@ def upper_to_mat(M):
         M[i,i] = 1.0
         k -= len
 
-def write_upper(file, A):
+def write_upper(file, A, fmt="%g"):
     count = A.size
     A = A.reshape([count,])
     step = 10000
@@ -182,7 +182,7 @@ def write_upper(file, A):
     f = open(file,'wb')
     while k < count:
         i = min(step,count-k)
-        np.savetxt(f,A[k:k+i].reshape([1,i]),fmt='%e', delimiter='\n', newline='\n')
+        np.savetxt(f,A[k:k+i].reshape([1,i]),fmt=fmt, delimiter='\n', newline='\n')
         k += i
     f.close()
 
@@ -201,6 +201,7 @@ def print_time(s):
 # here we go ...
 
 out_prfx="/tmp/fisher_"
+out_prec="%g"
 subject_list = np.array(sys.argv)[1:] # e.g. /ptmp/sbayrak/hcp/100307
 N = len(subject_list)
 
@@ -233,7 +234,7 @@ print_time("final division:")
 SUM = fisher_z2r(SUM)
 print_time("final fisher_z2r:")
 
-write_upper(out_prfx + "upper.csv", SUM)
+write_upper(out_prfx + "upper.csv", SUM, fmt=out_prec)
 print_time("final save sum:")
 
 n_orig = int(round( 0.5 + np.sqrt(0.25 + 2 * SUM.shape[0]) ))
@@ -247,8 +248,8 @@ embedding, result = embed.compute_diffusion_map(SUM, alpha=0, n_components=20,
 print_time("final embedding:")
 
 #save_output(subject, embedding)
-np.savetxt(out_prfx + "embedding.csv", embedding, fmt='%e', delimiter='\t', newline='\n')
-np.savetxt(out_prfx + "lambdas.csv", result['lambdas'], fmt='%e', delimiter='\t', newline='\n')
+np.savetxt(out_prfx + "embedding.csv", embedding, fmt=out_prec, delimiter='\t', newline='\n')
+np.savetxt(out_prfx + "lambdas.csv", result['lambdas'], fmt=out_prec, delimiter='\t', newline='\n')
 print_time("final save:")
 
 

@@ -188,6 +188,7 @@ def print_time(s):
 
 # here we go ...
 
+out_prfx="/tmp/fisher_"
 subject_list = np.array(sys.argv)[1:] # e.g. /ptmp/sbayrak/hcp/100307
 N = len(subject_list)
 
@@ -220,6 +221,9 @@ print_time("final division:")
 SUM = fisher_z2r(SUM)
 print_time("final fisher_z2r:")
 
+np.savetxt(out_prfx + "upper.csv", SUM, fmt='%e', delimiter='\t', newline='\n')
+print_time("final save sum:")
+
 n_orig = int(round( 0.5 + np.sqrt(0.25 + 2 * SUM.shape[0]) ))
 SUM.resize([n_orig,n_orig])
 upper_to_mat(SUM)
@@ -231,7 +235,8 @@ embedding, result = embed.compute_diffusion_map(SUM, alpha=0, n_components=20,
 print_time("final embedding:")
 
 #save_output(subject, embedding)
-np.savetxt("out_test", embedding, fmt='%5.5e', delimiter='\t', newline='\n')
+np.savetxt(out_prfx + "embedding.csv", embedding, fmt='%e', delimiter='\t', newline='\n')
+np.savetxt(out_prfx + "lambdas.csv", result['lambdas'], fmt='%e', delimiter='\t', newline='\n')
 print_time("final save:")
 
 

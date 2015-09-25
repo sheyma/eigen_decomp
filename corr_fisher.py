@@ -174,6 +174,18 @@ def upper_to_mat(M):
         M[i,i] = 1.0
         k -= len
 
+def write_upper(file, A):
+    count = A.size
+    A = A.reshape([count,])
+    step = 10000
+    k = 0
+    f = open(file,'wb')
+    while k < count:
+        i = min(step,count-k)
+        np.savetxt(f,A[k:k+i].reshape([1,i]),fmt='%e', delimiter='\n', newline='\n')
+        k += i
+    f.close()
+
 last_time = 0
 
 def set_time():
@@ -221,7 +233,7 @@ print_time("final division:")
 SUM = fisher_z2r(SUM)
 print_time("final fisher_z2r:")
 
-np.savetxt(out_prfx + "upper.csv", SUM, fmt='%e', delimiter='\t', newline='\n')
+write_upper(out_prfx + "upper.csv", SUM)
 print_time("final save sum:")
 
 n_orig = int(round( 0.5 + np.sqrt(0.25 + 2 * SUM.shape[0]) ))

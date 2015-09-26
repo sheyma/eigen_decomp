@@ -93,8 +93,9 @@ def my_cov(m):
         fact = 0.0
 
     X -= X.mean(axis=1, keepdims=True)
+    X /= np.sqrt(fact)
     print_time("mean:")
-    return np.dot(X, X.T / fact)
+    return np.dot(X, X.T)
 
 # This is corrcoef from numpy 1.9.2 ... mem usage optimized
 def corrcoef_upper(x):

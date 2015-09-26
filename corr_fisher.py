@@ -79,6 +79,17 @@ def load_nii_subject(subject, dtype=None):
 def load_random_subject(n,m):
     return np.random.randn(n, m)
 
+from scipy.linalg import get_blas_funcs
+
+def cool_syrk(fact, X):
+    syrk = get_blas_funcs("syrk", [X])
+    R = syrk(fact, X)
+
+    d = np.diag(R).copy()
+    size = mat_to_upper_F(R)
+    R.resize([size,])
+    return R,d
+
 def my_cov(m):
 
     # Handles complex arrays too
@@ -93,18 +104,16 @@ def my_cov(m):
         fact = 0.0
 
     X -= X.mean(axis=1, keepdims=True)
-    X /= np.sqrt(fact)
     print_time("mean:")
-    return np.dot(X, X.T)
+
+    # This returns np.dot(X, X.T) / fact
+    return cool_syrk(1.0/fact, X)
 
 # This is corrcoef from numpy 1.9.2 ... mem usage optimized
 def corrcoef_upper(x):
-    c = my_cov(x)
+    c, d = my_cov(x)
     print_time("cov:")
-    d = np.diag(c).copy()
-    size = mat_to_upper(c)
-    c.resize([size,])
-    print_time ("mat_to_upper c:")
+
     d = np.sqrt(d)
 
     # calculate "c / multiply.outer(d, d)" row-wise to ... for memory and speed
@@ -152,7 +161,7 @@ def old_fisher_z2r(Z):
     R[di] = 1.0
     return R
 
-def mat_to_upper(A):
+def mat_to_upper_C(A):
     if not A.flags['C_CONTIGUOUS']:
         raise Exception("C_CONTIGUOUS required")
     n = A.shape[0]
@@ -164,6 +173,31 @@ def mat_to_upper(A):
         U[k:k+len] = A[i,i+1:n]
         k += len
     return size
+
+def mat_to_upper_F(A):
+    if not A.flags['F_CONTIGUOUS']:
+        raise Exception("F_CONTIGUOUS required")
+    n = A.shape[0]
+    size = (n - 1) * n / 2
+    U = A.reshape([1,n*n], order='F')
+    k = 0
+    for i in range(0, n-1):
+        len = n - 1 - i
+        U[0,k:k+len] = A[i,i+1:n]
+        k += len
+    return size
+
+## not in place! should work for F and C
+def mat_to_upper_copy(A):
+    n = A.shape[0]
+    size = (n - 1) * n / 2
+    U = np.ndarray(shape=[size,], dtype=A.dtype, order='C')
+    k = 0
+    for i in range(0, n-1):
+        len = n - 1 - i
+        U[k:k+len] = A[i,i+1:n]
+        k += len
+    return U
 
 def upper_to_mat(M):
     if not M.flags['C_CONTIGUOUS']:

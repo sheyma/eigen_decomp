@@ -105,12 +105,16 @@ def corrcoef_upper(x):
     c.resize([size,])
     print_time ("mat_to_upper c:")
     d = np.sqrt(d)
-    d = np.multiply.outer(d, d)
+
+    # calculate "c / multiply.outer(d, d)" row-wise to ... for memory and speed
+    k = 0
+    for i in range(0, d.size - 1):
+        len = d.size - i - 1
+        c[k:k + len] /= (d[-len:] * d[i])
+        k += len
+
     print_time ("outer d:")
-    size = mat_to_upper(d)
-    d.resize([size,])
-    print_time ("mat_to_upper d:")
-    return ne.evaluate('c / d')
+    return c
 
 def correlation_matrix(subject):
     set_time()

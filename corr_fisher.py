@@ -1,5 +1,5 @@
 # read-in cifti (nifti2) format via Satra's nibabel repository:
-# $git clone --branch enh/cifti2 https://github.com/satra/nibabel.git
+# $ git clone --branch enh/cifti2 https://github.com/satra/nibabel.git
 
 from glob import glob
 import os
@@ -10,12 +10,13 @@ import nibabel as nb
 import sys
 import math
 import time
+from scipy.linalg import get_blas_funcs
 
 sys.path.append(os.path.expanduser('~/devel/mapalign/mapalign'))
 import embed
 
 # fake this for testing: 8095...0.5 GB, 11448...1 GB, 16190...2 GB
-#NN = 11448
+NN = 1144
 
 print "python version: ", sys.version[0:5]
 # (HYDRA) 2.7.9
@@ -23,25 +24,20 @@ print "numpy version: ", np.__version__
 # (HYDRA) 1.9.1
 
 def load_nii_subject(subject, dtype=None):
+    # four templates for each subject
     template = 'rfMRI_REST?_??_Atlas_hp2000_clean.dtseries.nii'
     cnt_files = 4
     files = [val for val in sorted(glob(os.path.join(subject, template)))]
     files = files[:cnt_files]
 
-    # read in data and create correlation matrix:
-    # for left hemisphere; 'range(0,nsamples)' for all ??
-    # data_range = range(0,32492) ??
-
     for x in xrange(0, cnt_files):
 
         img = nb.load(files[x])
-        # ntimepoints, nsamples = img.data.shape
 
-        # the following should be a concatenation of all 4 scans from each subject:
         # brainModels[2] will include both left and right hemispheres
         # for only left hemisphere: brainModels[1]
 
-        # count of time series
+        # count of brain nodes (e.g. n=59412)
         n = img.header.matrix.mims[1].brainModels[2].indexOffset
 
         # globally faked ... for testing
@@ -49,7 +45,7 @@ def load_nii_subject(subject, dtype=None):
             n = min(NN,n)
 
         single_t_series = img.data[:, :n].T
-        # length of time series
+        # length of time series (e.g. m=1200)
         m = single_t_series.shape[1]
 
         mean_series = single_t_series.mean(axis=0)
@@ -59,7 +55,7 @@ def load_nii_subject(subject, dtype=None):
             # In first loop we initialize matrix K to be filled up and returned.
             # By default we are using the same dtype like input file (float32).
             init_dtype = single_t_series.dtype if dtype == None else dtype
-            K = np.ndarray(shape=[n,m], dtype=init_dtype, order='F')
+            K = np.ndarray(shape=[n,m], dtype=init_dtype, order='F') #?
         else:
             if  m_last != m:
                 print "Warning, %s contains time series of different length" % (subject)
@@ -67,10 +63,11 @@ def load_nii_subject(subject, dtype=None):
                 print "Warning, %s contains different count of time series" % (subject)
             K.resize([n, K.shape[1] + m])
 
+        # concatenation of all 4-normalized scans from each subject
         K[:, -m:] = (single_t_series - mean_series) / std_series
         m_last = m
         n_last = n
-
+        # TRANSPOSE of K!!!!
         del img
         del single_t_series
 
@@ -79,10 +76,10 @@ def load_nii_subject(subject, dtype=None):
 def load_random_subject(n,m):
     return np.random.randn(n, m)
 
-from scipy.linalg import get_blas_funcs
 
-def cool_syrk(fact, X):
+def cool_syrk(fact, X): #?
     syrk = get_blas_funcs("syrk", [X])
+    print "syrk", syrk
     R = syrk(fact, X)
 
     d = np.diag(R).copy()
@@ -91,8 +88,7 @@ def cool_syrk(fact, X):
     return R,d
 
 def my_cov(m):
-
-    # Handles complex arrays too
+    # numpy.cov 1.9.2 adapted for real arrays
     m = np.asarray(m)
     dtype = np.result_type(m, np.float64)
     X = np.array(m, ndmin=2, dtype=dtype)
@@ -106,17 +102,16 @@ def my_cov(m):
     X -= X.mean(axis=1, keepdims=True)
     print_time("mean:")
 
-    # This returns np.dot(X, X.T) / fact
+    # This returns np.dot(X, X.T) / fact #?
     return cool_syrk(1.0/fact, X)
 
-# This is corrcoef from numpy 1.9.2 ... mem usage optimized
 def corrcoef_upper(x):
+    # numpy.corrcoef 1.9.2 adapted for mem-usage optimization
     c, d = my_cov(x)
     print_time("cov:")
 
     d = np.sqrt(d)
-
-    # calculate "c / multiply.outer(d, d)" row-wise to ... for memory and speed
+    # calculate "c / multiply.outer(d, d)" row-wise for mem & speed
     k = 0
     for i in range(0, d.size - 1):
         len = d.size - i - 1
@@ -129,11 +124,12 @@ def corrcoef_upper(x):
 def correlation_matrix(subject):
     set_time()
     K = load_nii_subject(subject)
-    #K = load_random_subject(NN,4800)
+    # K = load_random_subject(NN,4800)
     # K : matrix of similarities / Kernel matrix / Gram matrix
     print_time("load:")
     print "input data shape:", K.shape
     K = corrcoef_upper(K)
+    print "corrcoef data shape: ", K.shape
     print_time("corrcoef:")
     return K
 
@@ -175,12 +171,15 @@ def mat_to_upper_C(A):
     return size
 
 def mat_to_upper_F(A):
+    # check if input array Fortran style contiguous
     if not A.flags['F_CONTIGUOUS']:
         raise Exception("F_CONTIGUOUS required")
     n = A.shape[0]
     size = (n - 1) * n / 2
-    U = A.reshape([1,n*n], order='F')
+    # 'F': Fortran-like index ordering
+    U = A.reshape([1,n*n], order='F') #?
     k = 0
+    # fill out U by upper diagonal elements of A
     for i in range(0, n-1):
         len = n - 1 - i
         U[0,k:k+len] = A[i,i+1:n]
@@ -215,10 +214,11 @@ def upper_to_mat(M):
 
 def write_upper(file, A, fmt="%g"):
     count = A.size
+    print "count", count
     A = A.reshape([count,])
     step = 10000
     k = 0
-    f = open(file,'wb')
+    f = open(file,'wb') #?
     while k < count:
         i = min(step,count-k)
         np.savetxt(f,A[k:k+i].reshape([1,i]),fmt=fmt, delimiter='\n', newline='\n')
@@ -239,15 +239,18 @@ def print_time(s):
 
 # here we go ...
 
+# output prefix
 out_prfx="/tmp/fisher_"
+# output precision
 out_prec="%g"
-subject_list = np.array(sys.argv)[1:] # e.g. /ptmp/sbayrak/hcp/100307
+# list of all saubjects as numpy array
+subject_list = np.array(sys.argv)[1:] # e.g. /ptmp/sbayrak/hcp/*
 N = len(subject_list)
 
 for i in range(0, N):
     subject = subject_list[i]
     print "do loop %d/%d, %s" % (i+1, N, subject)
-    # This always returns dtype=np.float64, consider adding .astype(np.float32)
+    # This always returns dtype=np.float64, consider adding .astype(np.float32) #?
     K = correlation_matrix(subject)
 
     set_time()
@@ -273,10 +276,12 @@ print_time("final division:")
 SUM = fisher_z2r(SUM)
 print_time("final fisher_z2r:")
 
+# save upper diagonal correlation matrix as 1D array
 write_upper(out_prfx + "upper.csv", SUM, fmt=out_prec)
 print_time("final save sum:")
 
-n_orig = int(round( 0.5 + np.sqrt(0.25 + 2 * SUM.shape[0]) ))
+n_orig = int(round( 0.5 + np.sqrt(0.25 + 2 * SUM.shape[0]) )) #?
+print "n_orig", n_orig
 SUM.resize([n_orig,n_orig])
 upper_to_mat(SUM)
 print_time("final upper_to_mat:")

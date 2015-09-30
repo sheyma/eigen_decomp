@@ -41,8 +41,8 @@ def load_nii_subject(subject, dtype=None):
         n = img.header.matrix.mims[1].brainModels[2].indexOffset
 
         # globally faked ... for testing
-        if 'NN' in globals():
-            n = min(NN,n)
+        # if 'NN' in globals():
+        #    n = min(NN,n)
 
         single_t_series = img.data[:, :n].T
         # length of time series (e.g. m=1200)
@@ -240,7 +240,7 @@ def print_time(s):
 # here we go ...
 
 # output prefix
-out_prfx="/home/raid/bayrak/tmp/fisher_"
+out_prfx="/ptmp/sbayrak/embed_out_template/fisher_"
 # output precision
 out_prec="%g"
 # list of all saubjects as numpy array
@@ -285,7 +285,7 @@ print "n_orig", n_orig
 SUM.resize([n_orig,n_orig])
 upper_to_mat(SUM)
 SUM = (SUM +1.0) / 2.0
-np.savetxt(out_prfx + "fw_bw.csv", SUM, fmt='%5.5e', delimiter='\t', newline='\n')
+#np.savetxt(out_prfx + "fw_bw.csv", SUM, fmt='%5.5e', delimiter='\t', newline='\n')
 print "SUM.shape", SUM.shape
 print_time("final upper_to_mat:")
 

@@ -240,7 +240,7 @@ def print_time(s):
 # here we go ...
 
 # output prefix
-out_prfx="/tmp/fisher_"
+out_prfx="/home/raid/bayrak/tmp/fisher_"
 # output precision
 out_prec="%g"
 # list of all saubjects as numpy array
@@ -277,13 +277,16 @@ SUM = fisher_z2r(SUM)
 print_time("final fisher_z2r:")
 
 # save upper diagonal correlation matrix as 1D array
-write_upper(out_prfx + "upper.csv", SUM, fmt=out_prec)
+#write_upper(out_prfx + "upper.csv", SUM, fmt=out_prec)
 print_time("final save sum:")
 
 n_orig = int(round( 0.5 + np.sqrt(0.25 + 2 * SUM.shape[0]) )) #?
 print "n_orig", n_orig
 SUM.resize([n_orig,n_orig])
 upper_to_mat(SUM)
+SUM = (SUM +1.0) / 2.0
+np.savetxt(out_prfx + "fw_bw.csv", SUM, fmt='%5.5e', delimiter='\t', newline='\n')
+print "SUM.shape", SUM.shape
 print_time("final upper_to_mat:")
 
 print "do embed for correlation matrix:", SUM.shape
@@ -291,12 +294,12 @@ embedding, result = embed.compute_diffusion_map(SUM, alpha=0, n_components=20,
     diffusion_time=0, skip_checks=True, overwrite=True)
 print_time("final embedding:")
 
+np.savetxt(out_prfx + "embedding.csv", embedding, fmt='%5.5e', delimiter='\t', newline='\n')
 #save_output(subject, embedding)
-np.savetxt(out_prfx + "embedding.csv", embedding, fmt=out_prec, delimiter='\t', newline='\n')
-np.savetxt(out_prfx + "lambdas.csv", result['lambdas'], fmt=out_prec, delimiter='\t', newline='\n')
-np.savetxt(out_prfx + "vectors.csv", result['vectors'], fmt=out_prec, delimiter='\t', newline='\n')
+#np.savetxt(out_prfx + "embedding.csv", embedding, fmt=out_prec, delimiter='\t', newline='\n')
+#np.savetxt(out_prfx + "lambdas.csv", result['lambdas'], fmt=out_prec, delimiter='\t', newline='\n')
+#np.savetxt(out_prfx + "vectors.csv", result['vectors'], fmt=out_prec, delimiter='\t', newline='\n')
 print_time("final save:")
-
 
 print result['lambdas']
 

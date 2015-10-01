@@ -64,13 +64,20 @@ def save_output(subject, matrix):
     out_dir = os.path.join(out_path)
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
-    filename = os.path.basename(subject) + '_hcp_prep_out.csv'
+    filename = os.path.basename(subject) + '_hcp_prep_out_COMP.csv'
     print filename
     out_file = os.path.join(out_dir, filename)
     # %.e = Floating point exponential format (lowercase)
     np.savetxt(out_file, matrix, fmt='%5.5e', delimiter='\t', newline='\n')
     return out_file
 
-# calculate correlation matrices for the subject directory save it
-K = correlation_matrix(subject)
-save_output(subject, K)
+## calculate correlation matrices for the subject directory save it
+#K = correlation_matrix(subject)
+#save_output(subject, K)
+
+import load_nifti
+template = 'rfMRI_REST?_??_Atlas_hp2000_clean.dtseries.nii'
+K = load_nifti.load_nii(subject, template, 4)
+L = np.corrcoef(K.T)
+del K
+save_output(subject, L)

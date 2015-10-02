@@ -33,6 +33,10 @@
 *.err
 *.out
 
+# job scripts
+*.cmd
+*.sh
+
 # some scripts & dir's
 .idea/
 .ipynb_checkpoints/

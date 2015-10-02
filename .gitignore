@@ -38,6 +38,7 @@
 *.sh
 
 # some scripts & dir's
+*.pyc
 .idea/
 .ipynb_checkpoints/
 compute_embeddings_all.py

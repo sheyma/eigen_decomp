@@ -9,9 +9,9 @@
 # @ node = 1
 # @ tasks_per_node = 1
 # @ resources = ConsumableCpus(16)
-# @ node_resources = ConsumableMemory(56gb)
+# @ node_resources = ConsumableMemory(80gb)
 # @ network.MPI = sn_all,not_shared,us
-# @ wall_clock_limit = 18:00:00
+# @ wall_clock_limit = 22:00:00
 # @ notification = complete
 # @ notify_user = $(user)@rzg.mpg.de
 # @ queue

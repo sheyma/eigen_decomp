@@ -6,7 +6,7 @@ import sys
 from scipy.optimize import fsolve
 import csv
 
-sys.path.append(os.path.expanduser('~/devel/mapalign/mapalign'))
+sys.path.append(os.path.expanduser('/u/sbayrak/devel/mapalign/mapalign'))
 import embed
 
 def load_matrix(fname,n):
@@ -74,7 +74,7 @@ embedding, result = embed.compute_diffusion_map(SUM, alpha=0, n_components=20,
     diffusion_time=0, skip_checks=True, overwrite=True)
 
  # output prefix
-out_prfx="/home/raid/bayrak/tmp/FISHER_"
+out_prfx="/ptmp/sbayrak/fisher/FISHER_"
 # output precision
 out_prec="%g"
 

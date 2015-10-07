@@ -10,14 +10,14 @@ def load_nii(subject, template, cnt_files, dtype=None):
         using freely available data from Human Connectome Project (HCP), which
         releases almost 500 subjects with their subject-id numbers. 
         (e.g. subject = 'data_path/100307/')
-              
+        /a/documents/connectome/_all/100307  
     template : string 
         Template is the sketch-name of *.nii files (NIfTI-1 format) of interest
         for a subject. Each subject directory has many *.nii files, but we are 
         pointing the ones of our interest with the template string. 
         (e.g., resting-state data of a subject is sketched as below, 
         template = 'rfMRI_REST?_??_Atlas_hp2000_clean.dtseries.nii'  
-        
+        teplate =  'MNINonLinear/Results/rfMRI_REST?_??/rfMRI_REST?_??_Atlas_hp2000_clean.dtseries.nii
         this will be converted into these forms after loop:
         
         rfMRI_REST1_LR_Atlas_hp2000_clean.dtseries.nii
@@ -44,9 +44,10 @@ def load_nii(subject, template, cnt_files, dtype=None):
     files = files[:cnt_files]
 
     for x in xrange(0, cnt_files):
-            
+        print "AAAAAAAAAAAAAAA"        
+        print x, files[x]
         img = nb.load(files[x])
-
+        
         # brainModels[2] will include both left and right hemispheres
         # for only left hemisphere: brainModels[1]
 

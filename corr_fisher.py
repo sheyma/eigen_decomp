@@ -253,12 +253,18 @@ for i in range(0, N):
     # This always returns dtype=np.float64, consider adding .astype(np.float32) #?
     K = correlation_matrix(subject)
 
+    for item in range(len(K)):
+        if K[item] >= 0.9 :
+            K[item] = 1.0
+        else:
+            K[item] = 0
+    
     set_time()
 
     # For the next calculations we only use the upper triangular matrix!
 
-    K = fisher_r2z(K)
-    print_time("fisher_r2z:")
+    #K = fisher_r2z(K)
+    #print_time("fisher_r2z:")
 
     if i == 0:
         SUM = K
@@ -273,12 +279,12 @@ print
 
 SUM = ne.evaluate('SUM / N')
 print_time("final division:")
-SUM = fisher_z2r(SUM)
-print_time("final fisher_z2r:")
+#SUM = fisher_z2r(SUM)
+#print_time("final fisher_z2r:")
 
 # save upper diagonal correlation matrix as 1D array
 #write_upper(out_prfx + "upper.csv", SUM, fmt=out_prec)
-print_time("final save sum:")
+#print_time("final save sum:")
 
 n_orig = int(round( 0.5 + np.sqrt(0.25 + 2 * SUM.shape[0]) )) #?
 print "n_orig", n_orig

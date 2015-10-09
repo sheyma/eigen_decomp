@@ -95,5 +95,5 @@ def t_series(data_path, subject, template, cnt_files, subject_path=None, dtype=N
         K[:, -m:] = (single_t_series - mean_series) / std_series
         del img
         del single_t_series
-    # transpose of K, columns are brain nodes, rows are time-series
-    return K.T
+    # columns are time-series, rows are brain nodes
+    return K

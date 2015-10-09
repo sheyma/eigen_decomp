@@ -1,10 +1,55 @@
 import warnings
 import numpy as np
-#import sys
 from scipy.linalg import get_blas_funcs
 
-#fname = sys.argv[1]
-#rnd_mtx = np.loadtxt(fname)
+
+def corrcoef_upper(X):
+    """
+    .....numpy.corrcoef 1.9.1 adapted for mem-usage optimization....
+    X : numpy 2D array, MxN
+        
+        Correlation coefficients of a given matris is row-wise calculated.  
+        The upper diagonal of the resultant correlation matrix (of shape MxM) 
+        is returned as a  vector
+    
+    output, c: numpy 1D array, length  M.(M-1)/2 
+
+    """
+    c, d = my_cov(X)
+
+    d = np.sqrt(d)
+    # calculate "c / multiply.outer(d, d)" row-wise for mem & speed
+    k = 0
+    for i in range(0, d.size - 1):
+        len = d.size - i - 1
+        c[k:k + len] /= (d[-len:] * d[i])
+        k += len
+
+    return c
+
+def my_cov(m):
+    # numpy.cov 1.9.1 adapted for real arrays
+    m = np.asarray(m)
+    dtype = np.result_type(m, np.float64)
+    X = np.array(m, ndmin=2, dtype=dtype)
+    N = X.shape[1]
+    
+    fact = float(N - 1)
+    if fact <= 0:
+        warnings.warn("Degrees of freedom <= 0 for slice", RuntimeWarning)
+        fact = 0.0
+
+    X -= X.mean(axis=1, keepdims=True)
+    # This returns np.dot(X, X.T) / fact 
+    return cool_syrk(1.0/fact, X)
+
+def cool_syrk(fact, X): 
+    syrk = get_blas_funcs("syrk", [X])
+    R = syrk(fact, X)
+    d = np.diag(R).copy()
+    size = mat_to_upper_F(R)
+    R.resize([size,])
+    return R,d
 
 def mat_to_upper_F(A):
     # check if input array Fortran style contiguous
@@ -24,48 +69,5 @@ def mat_to_upper_F(A):
         k += len
     return size
 
-def cool_syrk(fact, X): 
-    syrk = get_blas_funcs("syrk", [X])
-    R = syrk(fact, X)
-    d = np.diag(R).copy()
-    size = mat_to_upper_F(R)
-    R.resize([size,])
-    return R,d
-
-def my_cov(m):
-    # numpy.cov 1.9.2 adapted for real arrays
-    m = np.asarray(m)
-    dtype = np.result_type(m, np.float64)
-    X = np.array(m, ndmin=2, dtype=dtype)
-    N = X.shape[1]
-    
-    fact = float(N - 1)
-    if fact <= 0:
-        warnings.warn("Degrees of freedom <= 0 for slice", RuntimeWarning)
-        fact = 0.0
-
-    X -= X.mean(axis=1, keepdims=True)
-    # This returns np.dot(X, X.T) / fact 
-    return cool_syrk(1.0/fact, X)
-
-def corrcoef_upper(x):
-    # numpy.corrcoef 1.9.2 adapted for mem-usage optimization
-    c, d = my_cov(x)
-
-    d = np.sqrt(d)
-    # calculate "c / multiply.outer(d, d)" row-wise for mem & speed
-    k = 0
-    for i in range(0, d.size - 1):
-        len = d.size - i - 1
-        c[k:k + len] /= (d[-len:] * d[i])
-        k += len
-
-    return c
-
-#print "random matrix size is ", rnd_mtx.shape
-#A = corrcoef_upper(rnd_mtx)
-#print "done"
-
-#np.savetxt('tmp_01.dat', A, fmt="%.5f" )
 
 

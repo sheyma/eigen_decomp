@@ -15,7 +15,7 @@ def t_series(data_path, subject, template, cnt_files, subject_path=None, dtype=N
          e.g. subject='100307'
      
     template : string
-        Template is the sketch-name of *.nii files (NIfTI-1 format) of interest
+        Template is the sketch-name of *.nii files (GIFTI format) of interest
         for a subject. Each subject directory has many *.nii files, but we are 
         pointing the ones of our interest with this template string. 
         (e.g. template = 'rfMRI_REST?_??_Atlas_hp2000_clean.dtseries.nii' ,
@@ -39,7 +39,13 @@ def t_series(data_path, subject, template, cnt_files, subject_path=None, dtype=N
     
     K : output, numpy.ndarray
         Concetanation of time-series matrices obtained from each *.nii file. 
-        
+    
+    References :
+        http://www.humanconnectome.org/
+        https://github.com/satra/nibabel/tree/enh/cifti2
+        right nibabel version to download:        
+        $ git clone --branch enh/cifti2 https://github.com/satra/nibabel.git
+    
     """
              
     from glob import glob

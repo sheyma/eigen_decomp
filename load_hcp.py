@@ -1,5 +1,5 @@
 
-def t_series(data_path, subject, template, cnt_files, subject_path=None, dtype=None, N_user=None):
+def t_series(data_path, subject, template, cnt_files, N_user=None, subject_path=None, dtype=None):
                 
     """Load/write Human Connectome Project (HCP) neuroimaging files via NiBabel 
     module. The HCP data is released in GIFTI format (*nii extention) for 

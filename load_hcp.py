@@ -1,5 +1,5 @@
 
-def t_series(data_path, subject, template, cnt_files, subject_path=None, dtype=None):
+def t_series(data_path, subject, template, cnt_files, subject_path=None, dtype=None, N_user=None):
                 
     """Load/write Human Connectome Project (HCP) neuroimaging files via NiBabel 
     module. The HCP data is released in GIFTI format (*nii extention) for 
@@ -8,7 +8,7 @@ def t_series(data_path, subject, template, cnt_files, subject_path=None, dtype=N
   
     data_path : string
         Local path for the HCP data
-        e.g. data = '/a/documents/connectome/_all'
+        e.g. data_path = '/a/documents/connectome/_all'
     
     subject : string
          Subject ID numbers of individuals scanned for the HCP. 
@@ -36,6 +36,9 @@ def t_series(data_path, subject, template, cnt_files, subject_path=None, dtype=N
     
     (full address of an *nii data = 'data_path/subject/subject_path/template',
     users are recommended to check this manually!!!)
+
+    N_user : int
+        User-defined length of time-series array, specially good for test runs.    
     
     K : output, numpy.ndarray
         Concetanation of time-series matrices obtained from each *.nii file. 
@@ -59,7 +62,7 @@ def t_series(data_path, subject, template, cnt_files, subject_path=None, dtype=N
         files = [val for val in sorted(glob(os.path.join(data_path, subject, template)))]
         
     files = files[:cnt_files]
-        
+    
     for x in xrange(0, cnt_files):
         img = nb.load(files[x])
         
@@ -67,7 +70,9 @@ def t_series(data_path, subject, template, cnt_files, subject_path=None, dtype=N
 
         # count of brain nodes 
         n = img.header.matrix.mims[1].brainModels[2].indexOffset
-
+        
+        if N_user != None:
+            n = min(N_user, n)
         single_t_series = img.data[:, :n].T
 
         # length of time series 

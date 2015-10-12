@@ -69,5 +69,16 @@ def mat_to_upper_F(A):
         k += len
     return size
 
-
-
+# save upper diagonal correlation matrix as 1D array
+def write_upper(file, A, fmt="%g"):
+    count = A.size
+    print "count", count
+    A = A.reshape([count,])
+    step = 10000
+    k = 0
+    f = open(file,'wb') #?
+    while k < count:
+        i = min(step,count-k)
+        np.savetxt(f,A[k:k+i].reshape([1,i]),fmt=fmt, delimiter='\n', newline='\n')
+        k += i
+    f.close()

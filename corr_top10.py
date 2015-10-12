@@ -45,37 +45,39 @@ for i in range(0, N):
     K = corr_faster.corrcoef_upper(K)   
     print "corrcoef data shape: ", K.shape
     
-    bins = np.arange(-1, 1+0.1, 0.1)
+    # get histogram of upper-triangual array
+    dbins = 0.01
+    bins = np.arange(-1, 1+dbins, dbins)
     x, bins = np.histogram(K, bins)
     
     pl.hist(K, bins)
     
+    # find out threshold value for top 10 percent    
     ten_percent = 0.10
-    
     back_sum = 0
-    for i in range(x.shape[0]-1, -1, -1):
-        back_sum += x[i]/float(x.sum())    
-        print i, back_sum, bins[i]        
+    
+    for idx in range(x.shape[0]-1, -1, -1):
+        back_sum += x[idx]/float(x.sum())    
         if back_sum >= ten_percent:
-            thr = bins[i]
+            thr = bins[idx]
             print "top-10percent threshold:", thr
             break
 
-  
-#    K_length = K.shape[0]
-#    
-#    for j in range(0, K_length, 1):
-#        if K[j] >= threshold:
-#            K[j] = 1.0
-#        else:
-#            K[j] = 0
-#
-#    if i == 0:
-#        SUM = K
-#    else:
-#        SUM = ne.evaluate('SUM + K')
-#
-#    del K
+    # binarize K via thresholding
+    K_length = K.shape[0]
+    
+    for j in range(0, K_length, 1):
+        if K[j] >= thr:
+            K[j] = 1.0
+        else:
+            K[j] = 0
+
+    if i == 0:
+        SUM = K
+    else:
+        SUM = ne.evaluate('SUM + K')
+
+    del K
 #
 #print "loop done"
 #

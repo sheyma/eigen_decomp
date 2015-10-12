@@ -45,59 +45,56 @@ for i in range(0, N):
     K = corr_faster.corrcoef_upper(K)   
     print "corrcoef data shape: ", K.shape
     
-    bins = np.arange(-1, 1+dN, dN)
-    x, xbins = np.histogram(K.flatten(), bins)    
+    bins = np.arange(-1, 1+0.1, 0.1)
+    x, bins = np.histogram(K, bins)
     
-    pl.hist(K.flatten(), bins)
+    pl.hist(K, bins)
     
-    x_length = x.shape[0]
-    x_sum = x.sum()
-    back_sum = 0
     ten_percent = 0.10
-
-    for j in range(x_length-1, -1, -1):    
-        back_sum += x[j]/x_sum
+    
+    back_sum = 0
+    for i in range(x.shape[0]-1, -1, -1):
+        back_sum += x[i]/float(x.sum())    
+        print i, back_sum, bins[i]        
         if back_sum >= ten_percent:
-            threshold = bins[j]
-            print threshold
-        break
+            thr = bins[i]
+            print "top-10percent threshold:", thr
+            break
 
-        
-    print "threshold for top 10 percent: %f" % (threshold)
-
-    K_length = K.shape[0]
-    
-    for j in range(0, K_length, 1):
-        if K[j] >= threshold:
-            K[j] = 1.0
-        else:
-            K[j] = 0
-
-    if i == 0:
-        SUM = K
-    else:
-        SUM = ne.evaluate('SUM + K')
-
-    del K
-
-print "loop done"
-
-# get mean correlation upper triangular
-SUM = ne.evaluate('SUM / N')  
-
-# get full correlation matrix
-N_orig = corr_full.N_original(SUM)
-SUM.resize([N_orig,N_orig])
-corr_full.upper_to_down(SUM)
-
-# get similarity matrix
-SUM = (SUM +1.0) / 2.0 
-
-print "do embed for correlation matrix:", SUM.shape
-embedding, result = embed.compute_diffusion_map(SUM, alpha=0, n_components=20,
-    diffusion_time=0, skip_checks=True, overwrite=True)
-
-print result['lambdas']
-    
+  
+#    K_length = K.shape[0]
+#    
+#    for j in range(0, K_length, 1):
+#        if K[j] >= threshold:
+#            K[j] = 1.0
+#        else:
+#            K[j] = 0
+#
+#    if i == 0:
+#        SUM = K
+#    else:
+#        SUM = ne.evaluate('SUM + K')
+#
+#    del K
+#
+#print "loop done"
+#
+## get mean correlation upper triangular
+#SUM = ne.evaluate('SUM / N')  
+#
+## get full correlation matrix
+#N_orig = corr_full.N_original(SUM)
+#SUM.resize([N_orig,N_orig])
+#corr_full.upper_to_down(SUM)
+#
+## get similarity matrix
+#SUM = (SUM +1.0) / 2.0 
+#
+#print "do embed for correlation matrix:", SUM.shape
+#embedding, result = embed.compute_diffusion_map(SUM, alpha=0, n_components=20,
+#    diffusion_time=0, skip_checks=True, overwrite=True)
+#
+#print result['lambdas']
+#    
         
 

@@ -19,13 +19,13 @@ import corr_full
 # here we go ...
 
 # list of all saubjects as numpy array
-subject_list = np.array(['100307', '912447']) 
-#subject_list = np.array(sys.argv)[1:]
+#subject_list = np.array(['100307', '912447']) 
+subject_list = np.array(sys.argv)[1:]
 
 data_path = '/a/documents/connectome/_all'
 template = 'MNINonLinear/Results/rfMRI_REST?_??/rfMRI_REST?_??_Atlas_hp2000_clean.dtseries.nii'
 cnt_files = 4
-N_user = 20134
+N_user = None
 
 N = len(subject_list)
 
@@ -87,4 +87,11 @@ print result['lambdas']
 
 print "embedding done!"    
         
+# output prefix
+out_prfx="/home/raid/bayrak/tmp/top10_"
+# output precision
+out_prec="%g"
 
+np.savetxt(out_prfx + "embedding.csv", embedding, fmt=out_prec, delimiter='\t', newline='\n')
+np.savetxt(out_prfx + "lambdas.csv", result['lambdas'], fmt=out_prec, delimiter='\t', newline='\n')
+np.savetxt(out_prfx + "vectors.csv", result['vectors'], fmt=out_prec, delimiter='\t', newline='\n')

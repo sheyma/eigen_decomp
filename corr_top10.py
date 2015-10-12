@@ -27,11 +27,9 @@ subject_list = np.array(['100307']) # e.g. /ptmp/sbayrak/hcp/*
 data_path = '/a/documents/connectome/_all'
 template = 'MNINonLinear/Results/rfMRI_REST?_??/rfMRI_REST?_??_Atlas_hp2000_clean.dtseries.nii'
 cnt_files = 4
-N_user = 78
+N_user = 1144
 
 N = len(subject_list)
-
-dN = 0.01
 
 
 for i in range(0, N):
@@ -43,14 +41,14 @@ for i in range(0, N):
 
     # get upper-triangular of correlation matrix of time-series as 1D array
     K = corr_faster.corrcoef_upper(K)   
-    print "corrcoef data shape: ", K.shape
+    print "corrcoef data upper triangular shape: ", K.shape
     
     # get histogram of upper-triangual array
     dbins = 0.01
     bins = np.arange(-1, 1+dbins, dbins)
     x, bins = np.histogram(K, bins)
     
-    pl.hist(K, bins)
+    #pl.hist(K, bins)
     
     # find out threshold value for top 10 percent    
     ten_percent = 0.10
@@ -78,25 +76,27 @@ for i in range(0, N):
         SUM = ne.evaluate('SUM + K')
 
     del K
-#
-#print "loop done"
-#
-## get mean correlation upper triangular
-#SUM = ne.evaluate('SUM / N')  
-#
-## get full correlation matrix
-#N_orig = corr_full.N_original(SUM)
-#SUM.resize([N_orig,N_orig])
-#corr_full.upper_to_down(SUM)
-#
+
+print "loop done"
+
+# get mean correlation upper triangular
+SUM = ne.evaluate('SUM / N')  
+
+# get full correlation matrix
+N_orig = corr_full.N_original(SUM)
+SUM.resize([N_orig,N_orig])
+corr_full.upper_to_down(SUM)
+print "full-binarized and averaged corrcoef matrix shape: ", SUM.shape 
+
 ## get similarity matrix
 #SUM = (SUM +1.0) / 2.0 
-#
-#print "do embed for correlation matrix:", SUM.shape
+
+#print "do embed for corr matrix "
 #embedding, result = embed.compute_diffusion_map(SUM, alpha=0, n_components=20,
 #    diffusion_time=0, skip_checks=True, overwrite=True)
 #
 #print result['lambdas']
-#    
+#
+#print "embedding done!"    
         
 

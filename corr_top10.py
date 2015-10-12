@@ -4,9 +4,6 @@ top 10 percent of correlation matrices
 
 """
 import numpy as np
-import matplotlib.pyplot as pl 
-
-
 import os
 import numexpr as ne
 ne.set_num_threads(ne.ncores) # inclusive HyperThreading cores
@@ -22,12 +19,13 @@ import corr_full
 # here we go ...
 
 # list of all saubjects as numpy array
-subject_list = np.array(['100307']) # e.g. /ptmp/sbayrak/hcp/*
+subject_list = np.array(['100307', '912447']) 
+#subject_list = np.array(sys.argv)[1:]
 
 data_path = '/a/documents/connectome/_all'
 template = 'MNINonLinear/Results/rfMRI_REST?_??/rfMRI_REST?_??_Atlas_hp2000_clean.dtseries.nii'
 cnt_files = 4
-N_user = 1144
+N_user = 20134
 
 N = len(subject_list)
 
@@ -48,8 +46,6 @@ for i in range(0, N):
     bins = np.arange(-1, 1+dbins, dbins)
     x, bins = np.histogram(K, bins)
     
-    #pl.hist(K, bins)
-    
     # find out threshold value for top 10 percent    
     ten_percent = 0.10
     back_sum = 0
@@ -62,14 +58,9 @@ for i in range(0, N):
             break
 
     # binarize K via thresholding
-    K_length = K.shape[0]
+    K[np.where( K >= thr) ] = 1.0    
+    K[np.where( K < thr) ] = 0
     
-    for j in range(0, K_length, 1):
-        if K[j] >= thr:
-            K[j] = 1.0
-        else:
-            K[j] = 0
-
     if i == 0:
         SUM = K
     else:
@@ -88,15 +79,12 @@ SUM.resize([N_orig,N_orig])
 corr_full.upper_to_down(SUM)
 print "full-binarized and averaged corrcoef matrix shape: ", SUM.shape 
 
-## get similarity matrix
-#SUM = (SUM +1.0) / 2.0 
+print "do embed for corr matrix "
+embedding, result = embed.compute_diffusion_map(SUM, alpha=0, n_components=20,
+    diffusion_time=0, skip_checks=True, overwrite=True)
 
-#print "do embed for corr matrix "
-#embedding, result = embed.compute_diffusion_map(SUM, alpha=0, n_components=20,
-#    diffusion_time=0, skip_checks=True, overwrite=True)
-#
-#print result['lambdas']
-#
-#print "embedding done!"    
+print result['lambdas']
+
+print "embedding done!"    
         
 

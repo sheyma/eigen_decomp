@@ -21,15 +21,15 @@ import corr_full
 
 # list of all saubjects as numpy array
 #subject_list = np.array(['100307']) #, '912447']) 
-subject_list = np.array(sys.argv)[1:]
+subject_list = np.array(sys.argv)[2:]
 
 #data_path = '/a/documents/connectome/_all'
 data_path = '/ptmp/sbayrak/hcp'
 template = 'rfMRI_REST?_??_Atlas_hp2000_clean.dtseries.nii'
 cnt_files = 4
-#N_user = sys.argv[1]
-#N_user = int(N_user)
-N_user = None
+N_user = sys.argv[1]
+N_user = int(N_user)
+#N_user = None
 
 N = len(subject_list)
 
@@ -90,7 +90,7 @@ print "full-binarized and averaged corrcoef matrix shape: ", SUM.shape
 
 #print result['lambdas']
 
-print "embedding done!"    
+#print "embedding done!"    
         
 ## output prefix
 #out_prfx="/home/raid/bayrak/tmp/top10_"

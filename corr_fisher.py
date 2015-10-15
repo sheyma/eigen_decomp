@@ -5,6 +5,7 @@ ne.set_num_threads(ne.ncores) # inclusive HyperThreading cores
 import sys
 
 sys.path.append(os.path.expanduser('~/devel/mapalign/mapalign'))
+sys.path.append(os.path.expanduser('~/devel/hcp_corr'))
 
 import embed
 import load_hcp
@@ -20,13 +21,13 @@ def fisher_z2r(Z):
 
 # here we go ...
 
-# list of all saubjects as numpy array
+# list of all subjects as numpy array
 subject_list = np.array(sys.argv)[1:] # e.g. /ptmp/sbayrak/hcp/*
 
-data_path = '/a/documents/connectome/_all'
-template = 'MNINonLinear/Results/rfMRI_REST?_??/rfMRI_REST?_??_Atlas_hp2000_clean.dtseries.nii'
+data_path = '/ptmp/sbayrak/hcp'
+template = 'rfMRI_REST?_??_Atlas_hp2000_clean.dtseries.nii'
 cnt_files = 4
-N_user = 10567
+N_user = None
 
 N = len(subject_list)
 
@@ -78,7 +79,7 @@ embedding, result = embed.compute_diffusion_map(SUM, alpha=0, n_components=20,
     diffusion_time=0, skip_checks=True, overwrite=True)
 
 # output prefix
-out_prfx="/home/raid/bayrak/tmp/fisher_"
+out_prfx="/ptmp/sbayrak/fisher/fisher_2"
 # output precision
 out_prec="%g"
 

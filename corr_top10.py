@@ -20,16 +20,16 @@ import corr_full
 # here we go ...
 
 # list of all saubjects as numpy array
-subject_list = np.array(['100307']) #, '912447']) 
-#subject_list = np.array(sys.argv)[1:]
+#subject_list = np.array(['100307']) #, '912447']) 
+subject_list = np.array(sys.argv)[1:]
 
 #data_path = '/a/documents/connectome/_all'
 data_path = '/ptmp/sbayrak/hcp'
 template = 'rfMRI_REST?_??_Atlas_hp2000_clean.dtseries.nii'
 cnt_files = 4
-N_user = sys.argv[1]
-N_user = int(N_user)
-#N_user = None
+#N_user = sys.argv[1]
+#N_user = int(N_user)
+N_user = None
 
 N = len(subject_list)
 
@@ -82,13 +82,13 @@ SUM.resize([N_orig,N_orig])
 corr_full.upper_to_down(SUM)
 print "full-binarized and averaged corrcoef matrix shape: ", SUM.shape 
 
-print "do embed for corr matrix "
+#print "do embed for corr matrix "
 
-embedding, result = embed.compute_diffusion_map(SUM, alpha=0, n_components=20,
-    diffusion_time=0, skip_checks=True, overwrite=True)
+#embedding, result = embed.compute_diffusion_map(SUM, alpha=0, n_components=20,
+#    diffusion_time=0, skip_checks=True, overwrite=True)
 
 
-print result['lambdas']
+#print result['lambdas']
 
 print "embedding done!"    
         

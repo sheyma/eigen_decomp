@@ -1,4 +1,5 @@
-
+import sys
+import os
 import numpy as np
 import numexpr as ne
 ne.set_num_threads(ne.ncores) # inclusive HyperThreading cores
@@ -17,12 +18,13 @@ import corr_full
 #A_up = corr_faster.corrcoef_upper(A)
 #corr_faster.write_upper('tmp_A.csv', A_up, fmt="%g")
 
-filenames = ['tmp_A.csv', 'tmp_A.csv',  'tmp_A.csv',  'tmp_A.csv',  'tmp_A.csv',
-        'tmp_A.csv' , 'tmp_A.csv' , 'tmp_A.csv' ]
+filename = sys.argv[1]
 
-for i in range(0, len(filenames)):
-    
-    K = np.loadtxt(filenames[i])    
+a = 10
+
+for i in range(0, a):
+    print "loop", i    
+    K = np.loadtxt(filename)    
     
     if i==0:
         SUM = K
@@ -56,7 +58,7 @@ print result['lambdas']
 
 print "embedding done!"    
  
-out_prfx = "tmp_"
+out_prfx = sys.argv[2]
 out_prec = "%g"       
 np.savetxt(out_prfx + "embedding.csv", embedding, fmt=out_prec, delimiter='\t', newline='\n')
 np.savetxt(out_prfx + "lambdas.csv", result['lambdas'], fmt=out_prec, delimiter='\t', newline='\n')

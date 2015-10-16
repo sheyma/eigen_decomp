@@ -21,7 +21,7 @@ import corr_full
 
 # list of all saubjects as numpy array
 #subject_list = np.array(['100307']) #, '912447']) 
-subject_list = np.array(sys.argv)[2:]
+subject_list = np.array(sys.argv)[3:]
 
 #data_path = '/a/documents/connectome/_all'
 data_path = '/ptmp/sbayrak/hcp'
@@ -73,30 +73,34 @@ for i in range(0, N):
 
 print "loop done"
 
-# get mean correlation upper triangular
-SUM = ne.evaluate('SUM / N')  
+# write out averaged upper triangular
+# output prefix
+out_prfx="/ptmp/sbayrak/corr_stat/top10_"
+# output precision
+out_prec="%g"
 
-# get full correlation matrix
-N_orig = corr_full.N_original(SUM)
-SUM.resize([N_orig,N_orig])
-corr_full.upper_to_down(SUM)
-print "full-binarized and averaged corrcoef matrix shape: ", SUM.shape 
+filename = sys.argv[2]
+
+corr_faster.write_upper(out_prfx + filename, SUM, fmt=out_prec)
+
+# get mean correlation upper triangular
+#SUM = ne.evaluate('SUM / N')  
+
+## get full correlation matrix
+#N_orig = corr_full.N_original(SUM)
+#SUM.resize([N_orig,N_orig])
+#corr_full.upper_to_down(SUM)
+#print "full-binarized and averaged corrcoef matrix shape: ", SUM.shape 
 
 #print "do embed for corr matrix "
 
 #embedding, result = embed.compute_diffusion_map(SUM, alpha=0, n_components=20,
 #    diffusion_time=0, skip_checks=True, overwrite=True)
 
-
 #print result['lambdas']
 
 #print "embedding done!"    
         
-## output prefix
-#out_prfx="/home/raid/bayrak/tmp/top10_"
-## output precision
-#out_prec="%g"
-#
 #np.savetxt(out_prfx + "embedding.csv", embedding, fmt=out_prec, delimiter='\t', newline='\n')
 #np.savetxt(out_prfx + "lambdas.csv", result['lambdas'], fmt=out_prec, delimiter='\t', newline='\n')
 #np.savetxt(out_prfx + "vectors.csv", result['vectors'], fmt=out_prec, delimiter='\t', newline='\n')

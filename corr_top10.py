@@ -21,15 +21,15 @@ import corr_full
 
 # list of all saubjects as numpy array
 #subject_list = np.array(['100307']) #, '912447']) 
-subject_list = np.array(sys.argv)[3:]
+subject_list = np.array(sys.argv)[2:]
 
 #data_path = '/a/documents/connectome/_all'
 data_path = '/ptmp/sbayrak/hcp'
 template = 'rfMRI_REST?_??_Atlas_hp2000_clean.dtseries.nii'
 cnt_files = 4
-N_user = sys.argv[1]
-N_user = int(N_user)
-#N_user = None
+#N_user = sys.argv[1]
+#N_user = int(N_user)
+N_user = None
 
 N = len(subject_list)
 
@@ -75,11 +75,11 @@ print "loop done"
 
 # write out averaged upper triangular
 # output prefix
-out_prfx="/ptmp/sbayrak/corr_stat/top10_"
+out_prfx="/ptmp/sbayrak/corr_top10_out/top10_"
 # output precision
 out_prec="%g"
 
-filename = sys.argv[2]
+filename = sys.argv[1]
 
 corr_faster.write_upper(out_prfx + filename, SUM, fmt=out_prec)
 

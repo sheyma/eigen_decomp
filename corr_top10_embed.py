@@ -12,12 +12,11 @@ import load_hcp
 import corr_faster
 import corr_full
 
-filename = ['tmp_A.csv', 'tmp_A.csv', 'tmp_A.csv', 'tmp_A.csv', 'tmp_A.csv',
-            'tmp_A.csv', 'tmp_A.csv', 'tmp_A.csv', 'tmp_A.csv', 'tmp_A.csv']
+filenames = sys.argv[1:]
 
-for i in range(0, len(filename)):
+for i in range(0, len(filenames)):
     print "loop", i    
-    K = np.loadtxt(filename[i])    
+    K = np.loadtxt(filenames[i])
     
     if i==0:
         SUM = K

@@ -1,6 +1,11 @@
 # generic files
 *~
 
+/tmp
+tmp
+/tmp/
+tmp/
+
 # doc files
 *.odt
 *.pdf

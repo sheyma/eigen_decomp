@@ -12,19 +12,12 @@ import load_hcp
 import corr_faster
 import corr_full
 
+filename = ['tmp_A.csv', 'tmp_A.csv', 'tmp_A.csv', 'tmp_A.csv', 'tmp_A.csv',
+            'tmp_A.csv', 'tmp_A.csv', 'tmp_A.csv', 'tmp_A.csv', 'tmp_A.csv']
 
-#A = np.random.randint(5, size=(100, 100))
-
-#A_up = corr_faster.corrcoef_upper(A)
-#corr_faster.write_upper('tmp_A.csv', A_up, fmt="%g")
-
-filename = sys.argv[1]
-
-a = 10
-
-for i in range(0, a):
+for i in range(0, len(filename)):
     print "loop", i    
-    K = np.loadtxt(filename)    
+    K = np.loadtxt(filename[i])    
     
     if i==0:
         SUM = K
@@ -39,9 +32,6 @@ print "loading data - loop done"
 N = 476
 # get mean correlation upper triangular
 SUM = ne.evaluate('SUM / N')  
-
-SUM += 1.0
-SUM /= 2.0
 
 # get full correlation matrix
 N_orig = corr_full.N_original(SUM)
@@ -58,7 +48,7 @@ print result['lambdas']
 
 print "embedding done!"    
  
-out_prfx = sys.argv[2]
+out_prfx = "/ptmp/sbayrak/corr_top10_out/top10_"
 out_prec = "%g"       
 np.savetxt(out_prfx + "embedding.csv", embedding, fmt=out_prec, delimiter='\t', newline='\n')
 np.savetxt(out_prfx + "lambdas.csv", result['lambdas'], fmt=out_prec, delimiter='\t', newline='\n')

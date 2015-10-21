@@ -56,7 +56,14 @@ SUM = ne.evaluate('SUM / N')
 N_orig = corr_full.N_original(SUM)
 SUM.resize([N_orig,N_orig])
 corr_full.upper_to_down(SUM)
-print "full-binarized and averaged corrcoef matrix shape: ", SUM.shape 
+
+# get top left quadrant of full mtx
+N_user = 29696
+SUM = SUM[0:(N_user-1) , 0:(N_user-1)]
+
+#print "full-binarized and averaged corrcoef matrix shape: ", SUM.shape 
+
+print "top left quadrant (binarized, averaged, corrcoef mtx) shape: ", SUM.shape 
 
 print "do embed for corr matrix "
 
@@ -67,7 +74,7 @@ print result['lambdas']
 
 print "embedding done!"    
  
-out_prfx = "/ptmp/sbayrak/corr_top10_out/top10_"
+out_prfx = "/ptmp/sbayrak/corr_top10_out/top10_LH_"
 out_prec = "%g"       
 np.savetxt(out_prfx + "embedding.csv", embedding, fmt=out_prec, delimiter='\t', newline='\n')
 np.savetxt(out_prfx + "lambdas.csv", result['lambdas'], fmt=out_prec, delimiter='\t', newline='\n')

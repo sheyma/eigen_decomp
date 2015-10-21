@@ -29,7 +29,9 @@ template = 'rfMRI_REST?_??_Atlas_hp2000_clean.dtseries.nii'
 cnt_files = 4
 #N_user = sys.argv[1]
 #N_user = int(N_user)
-N_user = None
+#N_user = None
+# nodes of left hemispheres only
+N_user = 29696
 
 N = len(subject_list)
 
@@ -75,7 +77,7 @@ print "loop done"
 
 # write out averaged upper triangular
 # output prefix
-out_prfx="/ptmp/sbayrak/corr_top10_out/top10_"
+out_prfx="/ptmp/sbayrak/corr_top10_out/top10_LH_"
 # output precision
 out_prec="%g"
 

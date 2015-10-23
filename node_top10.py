@@ -18,11 +18,11 @@ import corr_full
 subject_list = np.array(['100307', '912447']) 
 #subject_list = np.array(sys.argv)[2:]
 
-data_path = '/a/documents/connectome/_all'
-template = 'MNINonLinear/Results/rfMRI_REST?_??/rfMRI_REST?_??_Atlas_hp2000_clean.dtseries.nii'
+#data_path = '/a/documents/connectome/_all'
+#template = 'MNINonLinear/Results/rfMRI_REST?_??/rfMRI_REST?_??_Atlas_hp2000_clean.dtseries.nii'
 
-#data_path = '/ptmp/sbayrak/hcp'
-#template = 'rfMRI_REST?_??_Atlas_hp2000_clean.dtseries.nii'
+data_path = '/ptmp/sbayrak/hcp'
+template = 'rfMRI_REST?_??_Atlas_hp2000_clean.dtseries.nii'
 cnt_files = 4
 #N_user = sys.argv[1]
 #N_user = int(N_user)

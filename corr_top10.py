@@ -13,23 +13,20 @@ sys.path.append(os.path.expanduser('~/devel/mapalign/mapalign'))
 sys.path.append(os.path.expanduser('~/devel/hcp_corr'))
 
 import embed
-import load_hcp
-import corr_faster
-import corr_full
+import hcp_util
 
 # here we go ...
 
-# list of all saubjects as numpy array
-#subject_list = np.array(['100307']) #, '912447']) 
-subject_list = np.array(sys.argv)[2:]
+## parse command line arguments
+# first arg is output prefix, e.g. /ptmp/sbayrak/corr_top10_out/top10_
+cliarg_out_prfx = sys.argv[1]
+# the rest args are the subject path(s), e.g. /ptmp/sbayrak/hcp/*
+cliarg_rest = sys.argv[2:]
 
-#data_path = '/a/documents/connectome/_all'
-data_path = '/ptmp/sbayrak/hcp'
-template = 'rfMRI_REST?_??_Atlas_hp2000_clean.dtseries.nii'
+# list of all subjects as numpy array
+subject_list = np.array(cliarg_rest) # e.g. /ptmp/sbayrak/hcp/*
+
 cnt_files = 4
-#N_user = sys.argv[1]
-#N_user = int(N_user)
-#N_user = None
 # nodes of left hemispheres only
 N_user = 29696
 
@@ -40,10 +37,10 @@ for i in range(0, N):
     print "do loop %d/%d, %s" % (i+1, N, subject)
     
     # load time-series matrix of the subject    
-    K = load_hcp.t_series(data_path, subject, template, cnt_files, N_user, subject_path=None, dtype=None)
+    K = hcp_util.t_series(subject, cnt_files=cnt_files, N_cnt=N_user)
 
     # get upper-triangular of correlation matrix of time-series as 1D array
-    K = corr_faster.corrcoef_upper(K)   
+    K = hcp_util.corrcoef_upper(K)
     print "corrcoef data upper triangular shape: ", K.shape
     
     # get histogram of upper-triangual array
@@ -75,23 +72,21 @@ for i in range(0, N):
 
 print "loop done"
 
-# write out averaged upper triangular
 # output prefix
-out_prfx="/ptmp/sbayrak/corr_top10_out/top10_LH_"
+out_prfx=cliarg_out_prfx
 # output precision
 out_prec="%g"
 
-filename = sys.argv[1]
-
-corr_faster.write_upper(out_prfx + filename, SUM, fmt=out_prec)
+# write out averaged upper triangular
+hcp_util.write_upper(out_prfx + "SUM.csv", SUM, fmt=out_prec)
 
 # get mean correlation upper triangular
 #SUM = ne.evaluate('SUM / N')  
 
 ## get full correlation matrix
-#N_orig = corr_full.N_original(SUM)
+#N_orig = hcp_util.N_original(SUM)
 #SUM.resize([N_orig,N_orig])
-#corr_full.upper_to_down(SUM)
+#hcp_util.upper_to_down(SUM)
 #print "full-binarized and averaged corrcoef matrix shape: ", SUM.shape 
 
 #print "do embed for corr matrix "

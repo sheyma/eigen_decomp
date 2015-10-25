@@ -8,6 +8,7 @@ import os
 import numexpr as ne
 ne.set_num_threads(ne.ncores) # inclusive HyperThreading cores
 import sys
+import argparse
 
 sys.path.append(os.path.expanduser('~/devel/mapalign/mapalign'))
 sys.path.append(os.path.expanduser('~/devel/hcp_corr'))
@@ -18,13 +19,15 @@ import hcp_util
 # here we go ...
 
 ## parse command line arguments
-# first arg is output prefix, e.g. /ptmp/sbayrak/corr_top10_out/top10_
-cliarg_out_prfx = sys.argv[1]
+parser = argparse.ArgumentParser()
+# output prefix, e.g. /ptmp/sbayrak/corr_top10_out/top10_
+parser.add_argument('-o', '--outprfx', required=True)
 # the rest args are the subject path(s), e.g. /ptmp/sbayrak/hcp/*
-cliarg_rest = sys.argv[2:]
+parser.add_argument("subject",nargs="+")
+args = parser.parse_args()
 
 # list of all subjects as numpy array
-subject_list = np.array(cliarg_rest) # e.g. /ptmp/sbayrak/hcp/*
+subject_list = np.array(args.subject) # e.g. /ptmp/sbayrak/hcp/*
 
 cnt_files = 4
 # nodes of left hemispheres only
@@ -73,7 +76,7 @@ for i in range(0, N):
 print "loop done"
 
 # output prefix
-out_prfx=cliarg_out_prfx
+out_prfx=args.outprfx
 # output precision
 out_prec="%g"
 

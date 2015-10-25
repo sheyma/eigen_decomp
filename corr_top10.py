@@ -20,6 +20,10 @@ import hcp_util
 
 ## parse command line arguments
 parser = argparse.ArgumentParser()
+# left right or both hemispheres ...
+parser.add_argument('--hem', default='full', choices=['full','LH','RH'])
+# for testing ... don't load all nodes
+parser.add_argument('--nuser', default=None, type=int)
 # output prefix, e.g. /ptmp/sbayrak/corr_top10_out/top10_
 parser.add_argument('-o', '--outprfx', required=True)
 # the rest args are the subject path(s), e.g. /ptmp/sbayrak/hcp/*
@@ -29,9 +33,25 @@ args = parser.parse_args()
 # list of all subjects as numpy array
 subject_list = np.array(args.subject) # e.g. /ptmp/sbayrak/hcp/*
 
+# apply --hem argument
+if args.hem == 'full':
+    N_first = 0
+    N_cnt = None
+elif args.hem == 'LH':
+    N_first = 0
+    N_cnt = 29696
+elif args.hem == 'RH':
+    N_first = 29696
+    N_cnt = None
+
+# apply --nuser argument
+if args.nuser != None:
+    N_cnt = args.nuser
+
+## end parse command line arguments
+
+# you may override this to make testing faster
 cnt_files = 4
-# nodes of left hemispheres only
-N_user = 29696
 
 N = len(subject_list)
 
@@ -40,8 +60,10 @@ for i in range(0, N):
     print "do loop %d/%d, %s" % (i+1, N, subject)
     
     # load time-series matrix of the subject    
-    K = hcp_util.t_series(subject, cnt_files=cnt_files, N_cnt=N_user)
+    K = hcp_util.t_series(subject, cnt_files=cnt_files,
+                          N_first=N_first, N_cnt=N_cnt)
 
+    print K.shape
     # get upper-triangular of correlation matrix of time-series as 1D array
     K = hcp_util.corrcoef_upper(K)
     print "corrcoef data upper triangular shape: ", K.shape

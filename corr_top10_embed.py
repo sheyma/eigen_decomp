@@ -9,9 +9,7 @@ sys.path.append(os.path.expanduser('~/devel/mapalign/mapalign'))
 sys.path.append(os.path.expanduser('~/devel/hcp_corr'))
 
 import embed
-import load_hcp
-import corr_faster
-import corr_full
+import hcp_util
 
 # A replacement for numpy.loadtxt()
 # This function can only read a 1 dimensional vector [n,1]!
@@ -32,7 +30,16 @@ def load_vector(file):
     b.resize([i+1])
     return b
 
-filenames = sys.argv[1:]
+# here we go ...
+
+## parse command line arguments
+# first arg is output prefix, e.g. /ptmp/sbayrak/corr_top10_out/top10_LH_
+cliarg_out_prfx = sys.argv[1]
+# the rest args are the path(s) to the partial SUMs,
+# e.g. /ptmp/sbayrak/corr_top10_out/top10_histsum-*.csv
+cliarg_rest = sys.argv[2:]
+
+filenames = np.array(cliarg_rest)
 
 for i in range(0, len(filenames)):
     print "loop", i    
@@ -53,9 +60,9 @@ N = 476
 SUM = ne.evaluate('SUM / N')  
 
 # get full correlation matrix
-N_orig = corr_full.N_original(SUM)
+N_orig = hcp_util.N_original(SUM)
 SUM.resize([N_orig,N_orig])
-corr_full.upper_to_down(SUM)
+hcp_util.upper_to_down(SUM)
 
 # get top left quadrant of full mtx
 N_user = 29696
@@ -74,7 +81,7 @@ print result['lambdas']
 
 print "embedding done!"    
  
-out_prfx = "/ptmp/sbayrak/corr_top10_out/top10_LH_"
+out_prfx = cliarg_out_prfx
 out_prec = "%g"       
 np.savetxt(out_prfx + "embedding.csv", embedding, fmt=out_prec, delimiter='\t', newline='\n')
 np.savetxt(out_prfx + "lambdas.csv", result['lambdas'], fmt=out_prec, delimiter='\t', newline='\n')

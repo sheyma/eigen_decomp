@@ -8,9 +8,7 @@ sys.path.append(os.path.expanduser('~/devel/mapalign/mapalign'))
 sys.path.append(os.path.expanduser('~/devel/hcp_corr'))
 
 import embed
-import load_hcp
-import corr_faster
-import corr_full
+import hcp_util
 
 def fisher_r2z(R):
     return ne.evaluate('arctanh(R)')
@@ -21,11 +19,15 @@ def fisher_z2r(Z):
 
 # here we go ...
 
-# list of all subjects as numpy array
-subject_list = np.array(sys.argv)[1:] # e.g. /ptmp/sbayrak/hcp/*
+## parse command line arguments
+# first arg is output prefix, e.g. /ptmp/sbayrak/fisher/fisher_
+cliarg_out_prfx = sys.argv[1]
+# the rest args are the subject path(s), e.g. /ptmp/sbayrak/hcp/*
+cliarg_rest = sys.argv[2:]
 
-data_path = '/ptmp/sbayrak/hcp'
-template = 'rfMRI_REST?_??_Atlas_hp2000_clean.dtseries.nii'
+# list of all subjects as numpy array
+subject_list = np.array(cliarg_rest) # e.g. /ptmp/sbayrak/hcp/*
+
 cnt_files = 4
 N_user = None
 
@@ -36,10 +38,10 @@ for i in range(0, N):
     print "do loop %d/%d, %s" % (i+1, N, subject)
 
     # load time-series matrix of the subject    
-    K = load_hcp.t_series(data_path, subject, template, cnt_files, N_user, subject_path=None, dtype=None)
+    K = hcp_util.t_series(subject, cnt_files=cnt_files, N_cnt=N_user)
 
     # get upper-triangular of correlation matrix of time-series as 1D array
-    K = corr_faster.corrcoef_upper(K)   
+    K = hcp_util.corrcoef_upper(K)
     print "corrcoef data shape: ", K.shape
 
     # Fisher r to z transform on the correlation upper triangular
@@ -66,9 +68,9 @@ SUM += 1.0
 SUM /= 2.0
 
 # get full similartiy matrix of correlations
-N =corr_full.N_original(SUM)
+N = hcp_util.N_original(SUM)
 SUM.resize([N,N])
-corr_full.upper_to_down(SUM)
+hcp_util.upper_to_down(SUM)
 
 print "SUM.shape", SUM.shape
 
@@ -79,7 +81,7 @@ embedding, result = embed.compute_diffusion_map(SUM, alpha=0, n_components=20,
     diffusion_time=0, skip_checks=True, overwrite=True)
 
 # output prefix
-out_prfx="/ptmp/sbayrak/fisher/fisher_2"
+out_prfx=cliarg_out_prfx
 # output precision
 out_prec="%g"
 

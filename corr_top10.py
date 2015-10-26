@@ -16,12 +16,27 @@ sys.path.append(os.path.expanduser('~/devel/hcp_corr'))
 import embed
 import hcp_util
 
+def mat_to_upper_C(A):
+    if not A.flags['C_CONTIGUOUS']:
+        raise Exception("C_CONTIGUOUS required")
+    n = A.shape[0]
+    size = (n - 1) * n / 2
+    U = A.reshape([n*n,])
+    k = 0
+    for i in range(0, n-1):
+        len = n - 1 - i
+        U[k:k+len] = A[i,i+1:n]
+        k += len
+    return size
+
 # here we go ...
 
 ## parse command line arguments
 parser = argparse.ArgumentParser()
 # left right or both hemispheres ...
 parser.add_argument('--hem', default='full', choices=['full','LH','RH'])
+# histogram over "all" or "node"
+parser.add_argument('--histogram', default='all', choices=['all','node'])
 # for testing ... don't load all nodes
 parser.add_argument('--nuser', default=None, type=int)
 # output prefix, e.g. /ptmp/sbayrak/corr_top10_out/top10_
@@ -67,27 +82,51 @@ for i in range(0, N):
     # get upper-triangular of correlation matrix of time-series as 1D array
     K = hcp_util.corrcoef_upper(K)
     print "corrcoef data upper triangular shape: ", K.shape
-    
-    # get histogram of upper-triangual array
-    dbins = 0.01
-    bins = np.arange(-1, 1+dbins, dbins)
-    x, bins = np.histogram(K, bins)
-    
-    # find out threshold value for top 10 percent    
-    ten_percent = 0.10
-    back_sum = 0
-    
-    for idx in range(x.shape[0]-1, -1, -1):
-        back_sum += x[idx]/float(x.sum())    
-        if back_sum >= ten_percent:
-            thr = bins[idx]
-            print "top-10percent threshold:", thr
-            break
 
-    # binarize K via thresholding
-    K[np.where( K >= thr) ] = 1.0    
-    K[np.where( K < thr) ] = 0
-    
+    ten_percent = 0.1
+    if args.histogram == "all":
+        # get histogram of upper-triangual array
+        dbins = 0.01
+        bins = np.arange(-1, 1+dbins, dbins)
+        x, bins = np.histogram(K, bins)
+        # find out threshold value for top 10 percent
+        back_sum = 0
+        for idx in range(x.shape[0]-1, -1, -1):
+            back_sum += x[idx]/float(x.sum())
+            if back_sum >= ten_percent:
+                thr = bins[idx]
+                print "top-10percent threshold:", thr
+                break
+        # binarize K via thresholding
+        K[np.where( K >= thr) ] = 1.0
+        K[np.where( K < thr) ] = 0
+    elif args.histogram == "node":
+        # find a threshold value for each row of corr matrix
+
+        # convert upper-triangular to full matrix
+        N_orig = hcp_util.N_original(K)
+        K.resize([N_orig, N_orig])
+        hcp_util.upper_to_down(K)
+
+        dbins = 0.1
+        bins = np.arange(-1, 1+dbins, dbins)
+        for j in range(0, N_orig):
+            x, bins = np.histogram(K[j,:], bins)
+            back_sum = 0
+            for idx in range(x.shape[0]-1, -1, -1):
+                back_sum += x[idx]/float(x.sum())
+                if back_sum >= ten_percent:
+                    thr = bins[idx]
+                    #print "top-10percent node threshold:", thr
+                    break
+            # binarize corr matrix via thresholding
+            K[j,:][np.where( K[j,:] >= thr) ] = 1.0
+            K[j,:][np.where( K[j,:] < thr) ] = 0
+
+        # convert back to upper-triangular matrix
+        size = mat_to_upper_C(K)
+        K.resize([size,])
+
     if i == 0:
         SUM = K
     else:

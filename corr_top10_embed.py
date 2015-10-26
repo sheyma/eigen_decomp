@@ -3,6 +3,7 @@ import os
 import numpy as np
 import numexpr as ne
 ne.set_num_threads(ne.ncores) # inclusive HyperThreading cores
+import argparse
 
 sys.path.append(os.path.expanduser('~/devel/mapalign/mapalign'))
 sys.path.append(os.path.expanduser('~/devel/hcp_corr'))
@@ -13,13 +14,16 @@ import hcp_util
 # here we go ...
 
 ## parse command line arguments
-# first arg is output prefix, e.g. /ptmp/sbayrak/corr_top10_out/top10_LH_
-cliarg_out_prfx = sys.argv[1]
-# the rest args are the path(s) to the partial SUMs,
-# e.g. /ptmp/sbayrak/corr_top10_out/top10_histsum-*.csv
-cliarg_rest = sys.argv[2:]
+parser = argparse.ArgumentParser()
+# total number of HCP subjects ... for division
+parser.add_argument('--cntsubjects', default=476, type=int)
+# output prefix, e.g. /ptmp/sbayrak/corr_top10_out/top10_
+parser.add_argument('-o', '--outprfx', required=True)
+# the rest args are the subject path(s), e.g. /ptmp/sbayrak/hcp/*
+parser.add_argument("sum_file",nargs="+")
+args = parser.parse_args()
 
-filenames = np.array(cliarg_rest)
+filenames = np.array(args.sum_file)
 
 for i in range(0, len(filenames)):
     print "loop", i    
@@ -35,7 +39,7 @@ for i in range(0, len(filenames)):
 print "loading data - loop done"
    
 # total number of HCP subjects run with corr_top10.py
-N = 476
+N = args.cntsubjects
 # get mean correlation upper triangular
 SUM = ne.evaluate('SUM / N')  
 
@@ -43,10 +47,6 @@ SUM = ne.evaluate('SUM / N')
 N_orig = hcp_util.N_original(SUM)
 SUM.resize([N_orig,N_orig])
 hcp_util.upper_to_down(SUM)
-
-# get top left quadrant of full mtx
-N_user = 29696
-SUM = SUM[0:(N_user-1) , 0:(N_user-1)]
 
 #print "full-binarized and averaged corrcoef matrix shape: ", SUM.shape 
 
@@ -61,7 +61,7 @@ print result['lambdas']
 
 print "embedding done!"    
  
-out_prfx = cliarg_out_prfx
+out_prfx = args.outprfx
 out_prec = "%g"       
 np.savetxt(out_prfx + "embedding.csv", embedding, fmt=out_prec, delimiter='\t', newline='\n')
 np.savetxt(out_prfx + "lambdas.csv", result['lambdas'], fmt=out_prec, delimiter='\t', newline='\n')

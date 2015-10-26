@@ -3,32 +3,12 @@ import os
 import numpy as np
 import numexpr as ne
 ne.set_num_threads(ne.ncores) # inclusive HyperThreading cores
-import csv
 
 sys.path.append(os.path.expanduser('~/devel/mapalign/mapalign'))
 sys.path.append(os.path.expanduser('~/devel/hcp_corr'))
 
 import embed
 import hcp_util
-
-# A replacement for numpy.loadtxt()
-# This function can only read a 1 dimensional vector [n,1]!
-def load_vector(file):
-    # At the beginning we don't know how large this vector will be.
-    chunk_rows = 32768
-    cur_len = chunk_rows
-    b = np.ndarray(shape=[cur_len], dtype=float)
-    with open(file, 'r') as f:
-        reader = csv.reader(f,'excel-tab')
-        for i, row in enumerate(reader):
-            if i >= cur_len:
-                # Enlarge the vector if we have to.
-                cur_len += chunk_rows
-                b.resize([cur_len])
-            b[i] = row[0]
-    # Probably our vector is now a bit longer than the file ... shrink it!
-    b.resize([i+1])
-    return b
 
 # here we go ...
 
@@ -43,7 +23,7 @@ filenames = np.array(cliarg_rest)
 
 for i in range(0, len(filenames)):
     print "loop", i    
-    K = load_vector(filenames[i])
+    K = hcp_util.load_vector(filenames[i])
     
     if i==0:
         SUM = K

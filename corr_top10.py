@@ -16,19 +16,6 @@ sys.path.append(os.path.expanduser('~/devel/hcp_corr'))
 import embed
 import hcp_util
 
-def mat_to_upper_C(A):
-    if not A.flags['C_CONTIGUOUS']:
-        raise Exception("C_CONTIGUOUS required")
-    n = A.shape[0]
-    size = (n - 1) * n / 2
-    U = A.reshape([n*n,])
-    k = 0
-    for i in range(0, n-1):
-        len = n - 1 - i
-        U[k:k+len] = A[i,i+1:n]
-        k += len
-    return size
-
 # here we go ...
 
 ## parse command line arguments
@@ -124,7 +111,7 @@ for i in range(0, N):
             K[j,:][np.where( K[j,:] < thr) ] = 0
 
         # convert back to upper-triangular matrix
-        size = mat_to_upper_C(K)
+        size = hcp_util.mat_to_upper(K)
         K.resize([size,])
 
     if i == 0:

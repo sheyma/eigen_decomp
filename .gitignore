@@ -44,6 +44,7 @@ tmp/
 
 # some scripts & dir's
 *.pyc
+*.ipynb
 .idea/
 .ipynb_checkpoints/
 compute_embeddings_all.py

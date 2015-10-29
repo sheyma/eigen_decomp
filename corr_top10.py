@@ -61,7 +61,7 @@ for i in range(0, N):
     
     # load time-series matrix of the subject    
     K = hcp_util.t_series(subject, cnt_files=cnt_files,
-                          N_first=N_first, N_cnt=N_cnt)
+                          N_first=N_first, N_cnt=N_cnt, normalize=False)
 
     print K.shape
     # get upper-triangular of correlation matrix of time-series as 1D array

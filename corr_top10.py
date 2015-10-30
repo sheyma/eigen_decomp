@@ -83,6 +83,9 @@ for i in range(0, N):
                 thr = bins[idx]
                 print "top-10percent threshold:", thr
                 break
+        
+        bla = np.percentile(K , 90)
+        print "np.percentile threshold: ", bla        
         # binarize K via thresholding
         K[np.where( K >= thr) ] = 1.0
         K[np.where( K < thr) ] = 0
@@ -104,7 +107,7 @@ for i in range(0, N):
                 back_sum += x[idx]/float(x.sum())
                 if back_sum >= ten_percent:
                     thr = bins[idx]
-                    #print "top-10percent node threshold:", thr
+                    print "top-10percent node threshold:", thr
                     break
             # binarize corr matrix via thresholding
             K[j,:][np.where( K[j,:] >= thr) ] = 1.0

@@ -95,7 +95,7 @@ for i in range(0, N):
         hcp_util.upper_to_down(K)
         print "K back to full now", K.shape
         print "symmetry of corr matrix: ", (K.transpose() == K).all()
-        dbins = 0.1
+        dbins = 0.01
         bins = np.arange(-1, 1+dbins, dbins)
         for j in range(0, N_orig):
             x, bins = np.histogram(K[j,:], bins)

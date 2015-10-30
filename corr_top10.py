@@ -13,6 +13,7 @@ import argparse
 sys.path.append(os.path.expanduser('~/devel/hcp_corr'))
 
 import hcp_util
+import h5py
 
 # here we go ...
 
@@ -111,10 +112,7 @@ for i in range(0, N):
 
         print "K after binarization: ", K.shape
         print "symmetry after binarization: ",  (K.transpose() == K).all()     
-        # convert back to upper-triangular matrix
-        size = hcp_util.mat_to_upper(K)
-        K.resize([size,])
-
+ 
     if i == 0:
         SUM = K
     else:
@@ -129,6 +127,7 @@ out_prfx=args.outprfx
 # output precision
 out_prec="%g"
 
-# write out averaged upper triangular
-hcp_util.write_upper(out_prfx, SUM, fmt=out_prec)
-
+# write-out full matrix in HDF5 format
+print "writing-out data in HDF5 format"
+h = h5py.File(out_prfx, 'w')
+h.create_dataset('sum', data=SUM)

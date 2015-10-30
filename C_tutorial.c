@@ -99,7 +99,7 @@ int main()
            -0.65, -6.34,  2.67,  1.80, -7.10
   };
   
-  printf("LAPACK - dsyev_ exapmle program results\n");
+  printf("LAPACK - dsyev_ example program results\n");
   /* Query and allocate the optimal workspace */
   lwork = -1;
   dsyev_("Vectors", "Upper", &n, a, &lda, w, &wkopt, &lwork, &info);

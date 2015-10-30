@@ -70,13 +70,15 @@ for i in range(0, N):
     print "corrcoef data upper triangular shape: ", K.shape
 
     thr_percent = 10
+    
     if args.histogram == "all":
         # get thr for top 10 % of upper-triangual array
-        thr = np.percentile(K , (100 - thr_percent) )
+        thr = np.percentile(K, (100 - thr_percent))
               
         # binarize K via thresholding
         K[np.where( K >= thr) ] = 1.0
         K[np.where( K < thr) ] = 0
+    
     elif args.histogram == "node":
         
         # convert upper-triangular to full matrix

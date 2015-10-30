@@ -10,10 +10,8 @@ ne.set_num_threads(ne.ncores) # inclusive HyperThreading cores
 import sys
 import argparse
 
-sys.path.append(os.path.expanduser('~/devel/mapalign/mapalign'))
 sys.path.append(os.path.expanduser('~/devel/hcp_corr'))
 
-import embed
 import hcp_util
 
 # here we go ...
@@ -63,7 +61,7 @@ for i in range(0, N):
     
     # load time-series matrix of the subject    
     K = hcp_util.t_series(subject, cnt_files=cnt_files,
-                          N_first=N_first, N_cnt=N_cnt)
+                          N_first=N_first, N_cnt=N_cnt, normalize=False)
 
     
     # get upper-triangular of correlation matrix of time-series as 1D array
@@ -132,26 +130,5 @@ out_prfx=args.outprfx
 out_prec="%g"
 
 # write out averaged upper triangular
-hcp_util.write_upper(out_prfx + "SUM.csv", SUM, fmt=out_prec)
+hcp_util.write_upper(out_prfx, SUM, fmt=out_prec)
 
-# get mean correlation upper triangular
-#SUM = ne.evaluate('SUM / N')  
-
-## get full correlation matrix
-#N_orig = hcp_util.N_original(SUM)
-#SUM.resize([N_orig,N_orig])
-#hcp_util.upper_to_down(SUM)
-#print "full-binarized and averaged corrcoef matrix shape: ", SUM.shape 
-
-#print "do embed for corr matrix "
-
-#embedding, result = embed.compute_diffusion_map(SUM, alpha=0, n_components=20,
-#    diffusion_time=0, skip_checks=True, overwrite=True)
-
-#print result['lambdas']
-
-#print "embedding done!"    
-        
-#np.savetxt(out_prfx + "embedding.csv", embedding, fmt=out_prec, delimiter='\t', newline='\n')
-#np.savetxt(out_prfx + "lambdas.csv", result['lambdas'], fmt=out_prec, delimiter='\t', newline='\n')
-#np.savetxt(out_prfx + "vectors.csv", result['vectors'], fmt=out_prec, delimiter='\t', newline='\n')

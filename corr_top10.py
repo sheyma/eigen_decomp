@@ -65,7 +65,7 @@ for i in range(0, N):
     K = hcp_util.t_series(subject, cnt_files=cnt_files,
                           N_first=N_first, N_cnt=N_cnt)
 
-    print K.shape
+    
     # get upper-triangular of correlation matrix of time-series as 1D array
     K = hcp_util.corrcoef_upper(K)
     print "corrcoef data upper triangular shape: ", K.shape
@@ -94,7 +94,8 @@ for i in range(0, N):
         N_orig = hcp_util.N_original(K)
         K.resize([N_orig, N_orig])
         hcp_util.upper_to_down(K)
-
+        print "K back to full now", K.shape
+        print "symmetry of corr matrix: ", (K.transpose() == K).all()
         dbins = 0.1
         bins = np.arange(-1, 1+dbins, dbins)
         for j in range(0, N_orig):
@@ -110,6 +111,8 @@ for i in range(0, N):
             K[j,:][np.where( K[j,:] >= thr) ] = 1.0
             K[j,:][np.where( K[j,:] < thr) ] = 0
 
+        print "K after binarization: ", K.shape
+        print "symmetry after binarization: ",  (K.transpose() == K).all()     
         # convert back to upper-triangular matrix
         size = hcp_util.mat_to_upper(K)
         K.resize([size,])

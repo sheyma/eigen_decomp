@@ -69,52 +69,28 @@ for i in range(0, N):
     K = hcp_util.corrcoef_upper(K)
     print "corrcoef data upper triangular shape: ", K.shape
 
-    ten_percent = 0.1
+    thr_percent = 10
     if args.histogram == "all":
-        # get histogram of upper-triangual array
-        dbins = 0.01
-        bins = np.arange(-1, 1+dbins, dbins)
-        x, bins = np.histogram(K, bins)
-        # find out threshold value for top 10 percent
-        back_sum = 0
-        for idx in range(x.shape[0]-1, -1, -1):
-            back_sum += x[idx]/float(x.sum())
-            if back_sum >= ten_percent:
-                thr = bins[idx]
-                print "top-10percent threshold:", thr
-                break
-        
-        bla = np.percentile(K , 90)
-        print "np.percentile threshold: ", bla        
+        # get thr for top 10 % of upper-triangual array
+        thr = np.percentile(K , (100 - thr_percent) )
+              
         # binarize K via thresholding
         K[np.where( K >= thr) ] = 1.0
         K[np.where( K < thr) ] = 0
     elif args.histogram == "node":
-        # find a threshold value for each row of corr matrix
-
+        
         # convert upper-triangular to full matrix
         N_orig = hcp_util.N_original(K)
         K.resize([N_orig, N_orig])
         hcp_util.upper_to_down(K)
-        print "K back to full now", K.shape
-        print "symmetry of corr matrix: ", (K.transpose() == K).all()
-        dbins = 0.01
-        bins = np.arange(-1, 1+dbins, dbins)
+        
+        # get thr for top 10 % of each row of full corr matrix
         for j in range(0, N_orig):
-            x, bins = np.histogram(K[j,:], bins)
-            back_sum = 0
-            for idx in range(x.shape[0]-1, -1, -1):
-                back_sum += x[idx]/float(x.sum())
-                if back_sum >= ten_percent:
-                    thr = bins[idx]
-                    print "top-10percent node threshold:", thr
-                    break
+            thr = np.percentile(K[j,:], (100 - thr_percent))
+              
             # binarize corr matrix via thresholding
             K[j,:][np.where( K[j,:] >= thr) ] = 1.0
             K[j,:][np.where( K[j,:] < thr) ] = 0
-
-        print "K after binarization: ", K.shape
-        print "symmetry after binarization: ",  (K.transpose() == K).all()     
  
     if i == 0:
         SUM = K

@@ -38,6 +38,27 @@ pl.ylabel('node (first 50)')
 #pl.figure(2);
 #pl.plot(K_none)
 
+A = np.random.randn(500, 500)
+
+A = np.corrcoef(A)
+
+A = A.flatten()
+
+ten_percent = 0.1
+dbins = 0.01
+bins = np.arange(-1, 1+dbins, dbins)
+x, bins = np.histogram(A, bins)
+
+pl.hist(A, bins)
+
+# find out threshold value for top 10 percent
+back_sum = 0
+for idx in range(x.shape[0]-1, -1, -1):
+    back_sum += x[idx]/float(x.sum())
+    if back_sum >= ten_percent:
+        thr = bins[idx]
+        print "top-10percent threshold Seyma:", 
+pl.show()
 A = np.random.randn(60, 60)
 
 A = np.corrcoef(A)
@@ -59,4 +80,7 @@ for idx in range(x.shape[0]-1, -1, -1):
  
 np.percentile(A, 90)
 
+
  
+THR = np.percentile(A, 100*(1-ten_percent))
+print "top-10 percent threshold Sabine: ", THR

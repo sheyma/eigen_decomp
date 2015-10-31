@@ -5,10 +5,9 @@ ne.set_num_threads(ne.ncores) # inclusive HyperThreading cores
 import sys
 
 sys.path.append(os.path.expanduser('~/devel/mapalign/mapalign'))
-sys.path.append(os.path.expanduser('~/devel/hcp_corr'))
 
 import embed
-import hcp_util
+import hcp_corr
 
 def fisher_r2z(R):
     return ne.evaluate('arctanh(R)')
@@ -38,10 +37,10 @@ for i in range(0, N):
     print "do loop %d/%d, %s" % (i+1, N, subject)
 
     # load time-series matrix of the subject    
-    K = hcp_util.t_series(subject, cnt_files=cnt_files, N_cnt=N_user)
+    K = hcp_corr.t_series(subject, cnt_files=cnt_files, N_cnt=N_user)
 
     # get upper-triangular of correlation matrix of time-series as 1D array
-    K = hcp_util.corrcoef_upper(K)
+    K = hcp_corr.corrcoef_upper(K)
     print "corrcoef data shape: ", K.shape
 
     # Fisher r to z transform on the correlation upper triangular
@@ -68,9 +67,9 @@ SUM += 1.0
 SUM /= 2.0
 
 # get full similartiy matrix of correlations
-N = hcp_util.N_original(SUM)
+N = hcp_corr.N_original(SUM)
 SUM.resize([N,N])
-hcp_util.upper_to_down(SUM)
+hcp_corr.upper_to_down(SUM)
 
 print "SUM.shape", SUM.shape
 

@@ -4,15 +4,11 @@ top 10 percent of correlation matrices
 
 """
 import numpy as np
-import os
 import numexpr as ne
 ne.set_num_threads(ne.ncores) # inclusive HyperThreading cores
-import sys
 import argparse
 
-sys.path.append(os.path.expanduser('~/devel/hcp_corr'))
-
-import hcp_util
+import hcp_corr
 import h5py
 
 # here we go ...
@@ -61,12 +57,12 @@ for i in range(0, N):
     print "do loop %d/%d, %s" % (i+1, N, subject)
     
     # load time-series matrix of the subject    
-    K = hcp_util.t_series(subject, cnt_files=cnt_files,
+    K = hcp_corr.t_series(subject, cnt_files=cnt_files,
                           N_first=N_first, N_cnt=N_cnt, normalize=False)
 
     
     # get upper-triangular of correlation matrix of time-series as 1D array
-    K = hcp_util.corrcoef_upper(K)
+    K = hcp_corr.corrcoef_upper(K)
     print "corrcoef data upper triangular shape: ", K.shape
 
     thr_percent = 10
@@ -82,9 +78,9 @@ for i in range(0, N):
     elif args.histogram == "node":
         
         # convert upper-triangular to full matrix
-        N_orig = hcp_util.N_original(K)
+        N_orig = hcp_corr.N_original(K)
         K.resize([N_orig, N_orig])
-        hcp_util.upper_to_down(K)
+        hcp_corr.upper_to_down(K)
         
         # get thr for top 10 % of each row of full corr matrix
         for j in range(0, N_orig):

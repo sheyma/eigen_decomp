@@ -6,11 +6,9 @@ ne.set_num_threads(ne.ncores) # inclusive HyperThreading cores
 import argparse
 
 sys.path.append(os.path.expanduser('~/devel/mapalign/mapalign'))
-sys.path.append(os.path.expanduser('~/devel/hcp_corr'))
 
 import embed
 import h5py
-
 # here we go ...
 
 ## parse command line arguments
@@ -27,7 +25,6 @@ filenames = np.array(args.sum_file)
 
 for i in range(0, len(filenames)):
     print "do loop %d/%d, %s" % (i+1, len(filenames), filenames[i])
-    #K = hcp_util.load_vector(filenames[i])
     
     K_init = h5py.File(filenames[i], 'r')
     K = K_init.get('sum')

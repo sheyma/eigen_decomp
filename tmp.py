@@ -3,9 +3,7 @@ import os
 import matplotlib.pylab as pl
 import numpy as np
 
-sys.path.append(os.path.expanduser('~/devel/hcp_corr'))
-
-import hcp_util
+import hcp_corr
 
 cnt_files = 4
 subject = '/var/tmp/hcp/907656'
@@ -14,9 +12,9 @@ subject = '/var/tmp/hcp/907656'
 N_first = 0
 N_cnt = None
 
-#K_norm = hcp_util.t_series(subject, cnt_files=cnt_files, N_first=N_first, N_cnt=N_cnt)
+#K_norm = hcp_corr.t_series(subject, cnt_files=cnt_files, N_first=N_first, N_cnt=N_cnt)
 
-K_none = hcp_util.t_series(subject,
+K_none = hcp_corr.t_series(subject,
              template = None,
              cnt_files=4,
              N_cnt=N_cnt,

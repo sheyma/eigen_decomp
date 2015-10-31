@@ -56,7 +56,7 @@ print "group-level matrix shape: ", SUM.shape
 #
 #print "do embed for corr matrix "
 #
-#embedding, result = embed.compute_diffusion_map(SUM, alpha=0, n_components=20,
+#embedding, result = embed.compute_diffusion_map(SUM, alpha=0.5, n_components=20,
 #    diffusion_time=0, skip_checks=True, overwrite=True)
 #
 #print result['lambdas']

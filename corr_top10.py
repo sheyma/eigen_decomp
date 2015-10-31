@@ -94,13 +94,16 @@ for i in range(0, N):
             K[j,:][np.where( K[j,:] >= thr) ] = 1.0
             K[j,:][np.where( K[j,:] < thr) ] = 0
  
-    if i == 0:
-        SUM = K
-    else:
-        SUM = ne.evaluate('SUM + K')
-
+    # transpose the binarized matrix
+    K_trans = K.T
     del K
+    
+    if i == 0:
+        SUM = K_trans
+    else:
+        SUM = ne.evaluate('SUM + K_trans')
 
+print "SUM shape: ", SUM.shape
 print "loop done"
 
 # output prefix

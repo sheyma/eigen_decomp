@@ -20,6 +20,7 @@ triangles = np.array(surf.darrays[1].data, dtype=np.int32)
 
 import nibabel as nb
 img = nb.load('/a/documents/connectome/_all/100307/MNINonLinear/Results/rfMRI_REST1_LR/rfMRI_REST1_LR_Atlas_hp2000_clean.dtseries.nii')
+# get the indices
 n = img.header.matrix.mims[1].brainModels[0].vertexIndices.indices
 
 data = np.zeros(len(vertices))
@@ -42,7 +43,7 @@ b = np.loadtxt('/nobackup/kocher1/bayrak/embed_out/daniel_embedding.csv')
 
 def vizData(a, n, num):
     data = np.zeros(len(vertices))
-    data[n] = a[:,num]
+    data[n] = a[n,num]
     mlab.triangular_mesh(vertices[:, 0], vertices[:, 1], vertices[:, 2], triangles, scalars=data)
     
 vizData(a,n,0)

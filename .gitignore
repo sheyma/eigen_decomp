@@ -33,6 +33,7 @@ tmp/
 *.txt
 *.gz
 *.xz
+*.h5
 
 # job outputs
 *.err

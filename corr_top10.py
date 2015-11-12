@@ -7,7 +7,6 @@ import numpy as np
 import numexpr as ne
 ne.set_num_threads(ne.ncores) # inclusive HyperThreading cores
 import argparse
-
 import hcp_corr
 import h5py
 
@@ -16,39 +15,22 @@ import h5py
 ## parse command line arguments
 parser = argparse.ArgumentParser()
 # left right or both hemispheres ...
-parser.add_argument('--hem', default='full', choices=['full','LH','RH'])
+parser.add_argument('--hem', default='LH', choices=['full','LH','RH'])
 # histogram over "all" or "node"
 parser.add_argument('--histogram', default='all', choices=['all','node'])
-# for testing ... don't load all nodes
-parser.add_argument('--nuser', default=None, type=int)
+# output prefix, e.g. /ptmp/sbayrak/corr_top10_out/top10_
+parser.add_argument('--N_first', default=None, type=int)
+parser.add_argument('--N_cnt', default=None, type=int)
 # output prefix, e.g. /ptmp/sbayrak/corr_top10_out/top10_
 parser.add_argument('-o', '--outprfx', required=True)
 # the rest args are the subject path(s), e.g. /ptmp/sbayrak/hcp/*
 parser.add_argument("subject",nargs="+")
 args = parser.parse_args()
 
-# list of all subjects as numpy array
-subject_list = np.array(args.subject) # e.g. /ptmp/sbayrak/hcp/*
-
-# apply --hem argument
-if args.hem == 'full':
-    N_first = 0
-    N_cnt = None
-elif args.hem == 'LH':
-    N_first = 0
-    N_cnt = 29696
-elif args.hem == 'RH':
-    N_first = 29696
-    N_cnt = None
-
-# apply --nuser argument
-if args.nuser != None:
-    N_cnt = args.nuser
-
 ## end parse command line arguments
 
-# you may override this to make testing faster
-cnt_files = 4
+# list of all subjects as numpy array
+subject_list = np.array(args.subject) # e.g. /ptmp/sbayrak/hcp/*
 
 N = len(subject_list)
 
@@ -57,9 +39,8 @@ for i in range(0, N):
     print "do loop %d/%d, %s" % (i+1, N, subject)
     
     # load time-series matrix of the subject    
-    K = hcp_corr.t_series(subject, cnt_files=cnt_files,
-                          N_first=N_first, N_cnt=N_cnt, normalize=False)
-
+    K = hcp_corr.t_series(subject, hemisphere=args.hem, N_first=args.N_first,
+                          N_cnt=args.N_cnt)
     
     # get upper-triangular of correlation matrix of time-series as 1D array
     K = hcp_corr.corrcoef_upper(K)
@@ -68,46 +49,32 @@ for i in range(0, N):
     thr_percent = 10
     
     if args.histogram == "all":
-        # get thr for top 10 % of upper-triangual array
+        # get the full corr matrix
+        N_orig = hcp_corr.N_original(K)
+        K.resize([N_orig, N_orig])
+        hcp_corr.upper_to_down(K)  
+
+        # get thr for top 10 % of full corr matrix
         thr = np.percentile(K, (100 - thr_percent))
               
         # binarize K via thresholding
         K[np.where( K >= thr) ] = 1.0
         K[np.where( K < thr) ] = 0
     
-    elif args.histogram == "node":
-        
-        # convert upper-triangular to full matrix
-        N_orig = hcp_corr.N_original(K)
-        K.resize([N_orig, N_orig])
-        hcp_corr.upper_to_down(K)
-        
-        # get thr for top 10 % of each row of full corr matrix
-        for j in range(0, N_orig):
-            thr = np.percentile(K[j,:], (100 - thr_percent))
-              
-            # binarize corr matrix via thresholding
-            K[j,:][np.where( K[j,:] >= thr) ] = 1.0
-            K[j,:][np.where( K[j,:] < thr) ] = 0
- 
-    # transpose the binarized matrix
-    K_trans = K.T
-    del K
-    
+    # sum over all averaged matrices 
     if i == 0:
-        SUM = K_trans
+        SUM = K
     else:
-        SUM = ne.evaluate('SUM + K_trans')
+        SUM = ne.evaluate('SUM + K')
 
 print "SUM shape: ", SUM.shape
 print "loop done"
 
 # output prefix
 out_prfx=args.outprfx
-# output precision
-out_prec="%g"
 
 # write-out full matrix in HDF5 format
 print "writing-out data in HDF5 format"
 h = h5py.File(out_prfx, 'w')
-h.create_dataset('sum', data=SUM)
+h.create_dataset('sum', data=K)
+h.close()

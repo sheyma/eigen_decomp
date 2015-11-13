@@ -76,5 +76,5 @@ out_prfx=args.outprfx
 # write-out full matrix in HDF5 format
 print "writing-out data in HDF5 format"
 h = h5py.File(out_prfx, 'w')
-h.create_dataset('sum', data=K)
+h.create_dataset('sum', data=SUM)
 h.close()

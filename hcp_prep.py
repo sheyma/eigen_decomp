@@ -26,6 +26,7 @@ N = len(subject_list)
 
 for i in range(0, N):
     subject = subject_list[i]
+    subject_basename = os.path.basename(subject)
     print "do loop %d/%d, %s" % (i+1, N, subject)
     # load time-series matrix
     K = hcp_corr.t_series(subject, N_first=args.N_first, N_cnt=args.N_cnt)
@@ -41,14 +42,14 @@ for i in range(0, N):
     K /=2.0
     # do embedding on similarity matrix
     print "do embedding..."
-    embedding, result = embed.compute_diffusion_map(K, alpha=0.5, 
-                                                    n_components=10, skip_checks=True)
+    embedding, result = embed.compute_diffusion_map(K, 
+                                                    n_components=10)
 
-    out_prf = args.outprfx
-    out_sbj = os.path.basename(subject)
     # write out embedding components, eigenvalues and eigenvectors
     print "writing out embedding results..."
-    h = h5py.File(out_prf + out_sbj + '_embedding.h5', 'w')
+    outfile = os.path.join(args.outprfx, 'embedding_' + subject_basename + '.h5')
+    h = h5py.File(outfile , 'w')
+    print outfile
     h.create_dataset('embedding', data=embedding)
     h.create_dataset('lambdas', data=result['lambdas'])
     h.create_dataset('vectors', data=result['vectors'])

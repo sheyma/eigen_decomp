@@ -32,6 +32,8 @@ data[n] = L[20015]
 
 data[n] = L[:][10015]
 
+plot_surf_stat_map(vertices, triangles, stat_map=data)
+
 from mayavi import mlab
 
 mlab.triangular_mesh(vertices[:, 0], vertices[:, 1], vertices[:, 2], triangles, scalars=data)

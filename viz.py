@@ -4,30 +4,50 @@ import numpy as np
 import h5py 
 import sys
 import os
-sys.path.append(os.path.expanduser('~/devel/eigen_decomp'))
+sys.path.append(os.path.expanduser('/u/sbayrak/devel/brainsurfacescripts'))
+import plotting
+import argparse
 
-# get embedding component
-Lin = h5py.File('/var/tmp/embedding_959574.h5')
-L_embed = Lin.get('embedding')
-L_embed = np.array(L_embed)
+## begin parse command line arguments
+parser = argparse.ArgumentParser()
 
-surf = gifti.giftiio.read('/home/sheyma/devel/topography/data/Q1-Q6_R440.L.midthickness.32k_fs_LR.surf.gii')
+# output prefix, e.g. /ptmp/sbayrak/hcp_embed_figures/
+parser.add_argument('-o', '--outprfx', required=True)
+# the rest args are the subject path(s), e.g. /ptmp/sbayrak/hcp_embed/*
+parser.add_argument("subject",nargs="+")
+
+args = parser.parse_args()
+## end parse command line arguments
+
+surf = gifti.giftiio.read('/ptmp/sbayrak/hcp_embed/Q1-Q6_R440.L.midthickness.32k_fs_LR.surf.gii')
 vertices = np.array(surf.darrays[0].data, dtype=np.float64)
 triangles = np.array(surf.darrays[1].data, dtype=np.int32)
 
+data = np.zeros(len(vertices))
+
 # get the indices
-img = nb.load('/var/tmp/hcp/100307/rfMRI_REST1_LR_Atlas_hp2000_clean.dtseries.nii')
+img = nb.load('/ptmp/sbayrak/hcp/100307/rfMRI_REST1_LR_Atlas_hp2000_clean.dtseries.nii')
 n = img.header.matrix.mims[1].brainModels[0].vertexIndices.indices
 
-data = np.zeros(len(vertices))
-data[n] = L_embed[:,0] 
+# get embedding component
+subject_list = np.array(args.subject)
+N =len(subject_list)
 
-import plot_J
-plt = plot_J.plot_surf_stat_map(vertices, triangles, stat_map=data, azim=180)
-plt.show()
+for i in range(0, N):
+    subject = subject_list[i]
+    print "plot subject %d/%d, %s" % (i+1, N, subject)
+    subject_basename = os.path.basename(subject)
+    
+    Lin = h5py.File(subject, 'r')
+    L_embed = Lin.get('embedding')
+    L_embed = np.array(L_embed)
 
+    data[n] = L_embed[:,0] 
 
-
+    plt = plotting.plot_surf_stat_map(vertices, triangles, stat_map=data, azim=180)
+    import matplotlib.pyplot as plt
+    plt.title(subject_basename)
+    plt.savefig(args.outprfx + subject_basename[:-3] + '.png')
 
 #data = np.zeros(len(vertices))
 #import h5py

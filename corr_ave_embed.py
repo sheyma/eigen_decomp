@@ -44,11 +44,10 @@ print "loading data - loop done"
 N = args.cntsubjects
 # get mean correlation 
 SUM = ne.evaluate('SUM / N')   
+
 # get similarity matrix (Kernel matrix / Gram matrix)
-
-
-#SUM +=1.0
-#SUM /=2.0
+SUM +=1.0
+SUM /=2.0
 
 print "writing-out GROUP-LEVEL data in HDF5 format"
 h = h5py.File(args.outprfx, 'w')

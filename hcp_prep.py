@@ -65,7 +65,10 @@ for i in range(0, N):
 
     # write out embedding components, eigenvalues and eigenvectors
     print "writing out embedding results..."
-    outfile = os.path.join(args.outprfx, 'embedding_' + subject_basename + '.h5')
+    if args.hem == 'RH':
+    	outfile = os.path.join(args.outprfx, 'embedding_RH_' + subject_basename + '.h5')
+    else:
+        outfile = os.path.join(args.outprfx, 'embedding_' + subject_basename + '.h5')
     h = h5py.File(outfile , 'w')
     print outfile
     h.create_dataset('embedding', data=embedding)

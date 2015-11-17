@@ -49,22 +49,22 @@ SUM = ne.evaluate('SUM / N')
 SUM +=1.0
 SUM /=2.0
 
-print "writing-out GROUP-LEVEL data in HDF5 format"
-h = h5py.File(args.outprfx, 'w')
-h.create_dataset('sum', data=SUM)
-h.close()
-print "group-level matrix shape: ", SUM.shape
+# set NaN entries to 0
+SUM[np.where(np.isnan(SUM) == True)] = 0
+# ignore zero entries?
+ind = np.where(np.sum(SUM,axis=1) != 1)
 
-#print "do embed for corr matrix "
-#
-#embedding, result = embed.compute_diffusion_map(SUM, alpha=0.5, n_components=20,
-#    diffusion_time=0, skip_checks=True, overwrite=True)
-#
-#print result['lambdas']
-#print "embedding done!"
-#
-#out_prfx = args.outprfx
-#out_prec = "%g"
-#np.savetxt(out_prfx + "embed.csv", embedding, fmt=out_prec, delimiter='\t', newline='\n')
-#np.savetxt(out_prfx + "lambd.csv", result['lambdas'], fmt=out_prec, delimiter='\t', newline='\n')
-#np.savetxt(out_prfx + "vect.csv", result['vectors'], fmt=out_prec, delimiter='\t', newline='\n')
+print "do embed for corr matrix "
+
+embedding, result = embed.compute_diffusion_map(SUM[ind].T[ind].T, 
+                                                n_components=10)
+    
+print result['lambdas']
+print "embedding done!"
+
+print "writing out embedding results..."
+h = h5py.File(args.outprfx , 'w')
+h.create_dataset('embedding', data=embedding)
+h.create_dataset('lambdas', data=result['lambdas'])
+h.create_dataset('vectors', data=result['vectors'])
+h.close()

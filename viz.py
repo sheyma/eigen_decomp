@@ -5,6 +5,8 @@ import h5py
 import sys
 import os
 sys.path.append(os.path.expanduser('/u/sbayrak/devel/brainsurfacescripts'))
+#sys.path.append(os.path.expanduser('/home/raid/bayrak/devel/brainsurfacescripts'))
+
 import plotting
 import argparse
 
@@ -19,7 +21,9 @@ parser.add_argument("subject",nargs="+")
 args = parser.parse_args()
 ## end parse command line arguments
 
-surf = gifti.giftiio.read('/ptmp/sbayrak/hcp_embed/Q1-Q6_R440.L.midthickness.32k_fs_LR.surf.gii')
+#surf = gifti.giftiio.read('/home/raid/bayrak/devel/topography/data/Q1-Q6_R440.R.midthickness.32k_fs_LR.surf.gii')
+surf = gifti.giftiio.read('/u/sbayrak/devel/topography/data/Q1-Q6_R440.R.midthickness.32k_fs_LR.surf.gii')
+
 vertices = np.array(surf.darrays[0].data, dtype=np.float64)
 triangles = np.array(surf.darrays[1].data, dtype=np.int32)
 
@@ -27,11 +31,15 @@ data = np.zeros(len(vertices))
 
 # get the indices
 img = nb.load('/ptmp/sbayrak/hcp/100307/rfMRI_REST1_LR_Atlas_hp2000_clean.dtseries.nii')
-n = img.header.matrix.mims[1].brainModels[0].vertexIndices.indices
+#img = nb.load('/a/documents/connectome/_all/100307/MNINonLinear/Results/rfMRI_REST1_LR/rfMRI_REST1_LR_Atlas_hp2000_clean.dtseries.nii')
+n = img.header.matrix.mims[1].brainModels[1].vertexIndices.indices
 
 # get embedding component
 subject_list = np.array(args.subject)
 N =len(subject_list)
+
+print "n shape : ", np.shape(n)
+
 
 for i in range(0, N):
     subject = subject_list[i]
@@ -42,11 +50,13 @@ for i in range(0, N):
     L_embed = Lin.get('embedding')
     L_embed = np.array(L_embed)
 
-    data[n] = L_embed[:,0] 
+    ind = np.where(np.sum(L_embed, axis=1) != 1)
+    data[n[ind]] = L_embed[:,0] 
 
     plt = plotting.plot_surf_stat_map(vertices, triangles, stat_map=data, azim=180)
     import matplotlib.pyplot as plt
     plt.title(subject_basename)
+    #plt.show()
     plt.savefig(args.outprfx + subject_basename[:-3] + '.png')
 
 #data = np.zeros(len(vertices))

@@ -71,32 +71,31 @@ hcp_corr.upper_to_down(SUM)
 
 print "SUM.shape", SUM.shape
 
-## output prefix
-#out_prfx=args.outprfx
-#
-## write-out full matrix in HDF5 format
-#print "writing-out data in HDF5 format"
-#h = h5py.File(out_prfx, 'w')
-#h.create_dataset('sum', data=SUM)
-#h.close()
+# output prefix
+out_prfx=args.outprfx
+
+print "writing-out data in HDF5 format"
+h = h5py.File(out_prfx, 'w')
+h.create_dataset('sum', data=SUM)
+h.close()
 
 # set NaN entries to 0
-SUM[np.where(np.isnan(SUM) == True)] = 0
+#SUM[np.where(np.isnan(SUM) == True)] = 0
 # ignore zero entries?
-ind = np.where(np.sum(SUM,axis=1) != 1)
+#ind = np.where(np.sum(SUM,axis=1) != 1)
 
-print "do embed for corr matrix "
+#print "do embed for corr matrix "
 
-embedding, result = embed.compute_diffusion_map(SUM[ind].T[ind].T, 
-                                                n_components=10)
+#embedding, result = embed.compute_diffusion_map(SUM[ind].T[ind].T, 
+#                                                n_components=10)
     
-print result['lambdas']
-print "embedding done!"
+#print result['lambdas']
+#print "embedding done!"
 
-print "writing out embedding results..."
-h = h5py.File(args.outprfx , 'w')
-h.create_dataset('embedding', data=embedding)
-h.create_dataset('lambdas', data=result['lambdas'])
-h.create_dataset('vectors', data=result['vectors'])
-h.close()
+#print "writing out embedding results..."
+#h = h5py.File(args.outprfx , 'w')
+#h.create_dataset('embedding', data=embedding)
+#h.create_dataset('lambdas', data=result['lambdas'])
+#h.create_dataset('vectors', data=result['vectors'])
+#h.close()
 

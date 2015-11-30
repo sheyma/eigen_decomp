@@ -42,12 +42,13 @@ for i in range(0, N):
     K = hcp_corr.corrcoef_upper(K)
     print "corrcoef data upper triangular shape: ", K.shape
    
-    # get the full corr matrix
-    N_orig = hcp_corr.N_original(K)
-    K.resize([N_orig, N_orig])
-    hcp_corr.upper_to_down(K)  
+#    # get the full corr matrix
+#    N_orig = hcp_corr.N_original(K)
+#    K.resize([N_orig, N_orig])
+#    hcp_corr.upper_to_down(K)  
 
-    print "corrcoef data full matrix shape: ", K.shape
+#    print "corrcoef data full matrix shape: ", K.shape
+
     # sum over all subjects 
     if i == 0:
         SUM = K
@@ -60,7 +61,7 @@ print "loop done"
 # output prefix
 out_prfx=args.outprfx
 
-# write-out full matrix in HDF5 format
+# write-out upper-triangular corr-array in HDF5 format
 print "writing-out data in HDF5 format"
 h = h5py.File(out_prfx, 'w')
 h.create_dataset('sum', data=SUM)

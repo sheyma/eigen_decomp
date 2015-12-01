@@ -16,9 +16,6 @@ import h5py
 parser = argparse.ArgumentParser()
 # left right or both hemispheres ...
 parser.add_argument('--hem', default='LH', choices=['full','LH','RH'])
-# histogram over "all" or "node"
-parser.add_argument('--histogram', default='all', choices=['all','node'])
-# output prefix, e.g. /ptmp/sbayrak/corr_top10_out/top10_
 parser.add_argument('--N_first', default=None, type=int)
 parser.add_argument('--N_cnt', default=None, type=int)
 # output prefix, e.g. /ptmp/sbayrak/corr_top10_out/top10_
@@ -48,18 +45,17 @@ for i in range(0, N):
 
     thr_percent = 10
     
-    if args.histogram == "all":
-        # get the full corr matrix
-        N_orig = hcp_corr.N_original(K)
-        K.resize([N_orig, N_orig])
-        hcp_corr.upper_to_down(K)  
+    # get the full corr matrix
+    N_orig = hcp_corr.N_original(K)
+    K.resize([N_orig, N_orig])
+    hcp_corr.upper_to_down(K)  
 
-        # get thr for top 10 % of full corr matrix
-        thr = np.percentile(K, (100 - thr_percent))
-              
-        # binarize K via thresholding
-        K[np.where( K >= thr) ] = 1.0
-        K[np.where( K < thr) ] = 0
+    # get thr for top 10 % of full corr matrix
+    thr = np.percentile(K, (100 - thr_percent))
+          
+    # binarize K via thresholding
+    K[np.where( K >= thr) ] = 1.0
+    K[np.where( K < thr) ] = 0
     
     # sum over all averaged matrices 
     if i == 0:

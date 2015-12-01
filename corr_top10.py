@@ -45,14 +45,9 @@ for i in range(0, N):
 
     thr_percent = 10
     
-    # get the full corr matrix
-    N_orig = hcp_corr.N_original(K)
-    K.resize([N_orig, N_orig])
-    hcp_corr.upper_to_down(K)  
-
-    # get thr for top 10 % of full corr matrix
+    # get thr for top 10 % of UPPER-Triangular of corr-matrix
     thr = np.percentile(K, (100 - thr_percent))
-          
+    print "1D upper-triang THR: ", thr         
     # binarize K via thresholding
     K[np.where( K >= thr) ] = 1.0
     K[np.where( K < thr) ] = 0
@@ -63,13 +58,15 @@ for i in range(0, N):
     else:
         SUM = ne.evaluate('SUM + K')
 
+    del K	
+
 print "SUM shape: ", SUM.shape
 print "loop done"
 
 # output prefix
 out_prfx=args.outprfx
 
-# write-out full matrix in HDF5 format
+# write-out upper triangular of corr- matrix in HDF5 format
 print "writing-out data in HDF5 format"
 h = h5py.File(out_prfx, 'w')
 h.create_dataset('sum', data=SUM)

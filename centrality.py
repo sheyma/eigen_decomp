@@ -9,7 +9,7 @@ import numexpr as ne
 ne.set_num_threads(ne.ncores) # inclusive HyperThreading cores
 import argparse
 import h5py
-
+import networkx as nx
 # here we go ...
 
 ## parse command line arguments
@@ -43,25 +43,23 @@ for i in range(0, len(filenames)):
 
 print "loading data - loop done"
 
+SUM[np.where(np.isnan(SUM) == True)] = 0
+
+
 # get degree centrality - hard coded
-[ro, co] = np.shape(SUM)
+#[ro, co] = np.shape(SUM)
 # check if connectivity is a square matrix
-if ro != co:
-    print "Warning, mean connectivity is not a square matrix!"
+#if ro != co:
+#    print "Warning, mean connectivity is not a square matrix!"
 
-deg_cent =np.zeros((ro,1))
-# exclude NaN valued indices
-ind = (np.where(np.isnan(SUM[0,:]) == False))
+row_length = 1000
 
-for j in range(0, 4000):
-    
-    row_sum = SUM[j, ind[0] ].sum()
-    deg_cent[j] = row_sum
-    row_sum = 0
+deg_cent =np.sum(SUM, axis=1)
 
 N = args.cntsubjects
-## get mean degree centrality of nodes
-##deg_cent = deg_cent / N
+
+# get mean degree centrality of nodes
+deg_cent = deg_cent / N
     
 print "length of degree centrality vector", len(deg_cent)
 print "maximum of degree centrality: ", deg_cent.max()

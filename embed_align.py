@@ -35,8 +35,12 @@ print "listed embedding input shape: ", np.shape(embeddings)
 realigned, xfms = align.iterative_alignment_with_coords(embeddings, 
                                                         coords=None, 
                                                         n_iters=1, 
-                                                        n_samples=0.1, 
+                                                        n_samples=0.01, 
                                                         use_mean=False)
+                                                        
+h = h5py.File('tmp.h5', 'w')
+h.create_dataset('rel', data=realigned)
+h.close()
 
 
 

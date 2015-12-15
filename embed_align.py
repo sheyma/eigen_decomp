@@ -20,7 +20,20 @@ args = parser.parse_args()
 
 subject_list = args.subject
 
+#subject_list = ['/nobackup/kocher1/bayrak/test/100307_test.h5',
+#                '/nobackup/kocher1/bayrak/test/100408_test.h5',
+#                '/nobackup/kocher1/bayrak/test/101006_test.h5',
+#                '/nobackup/kocher1/bayrak/test/101915_test.h5' ]
+
 # get a list of embeddings for subjects
+#for f in subject_list:
+#    d =  np.array(h5py.File(f, 'r').get('tmp'))   
+#    if (100 == d.shape[0]):
+#        embeddings.append(d)
+#        filelist.append(f)
+#    else:
+#        print "bad subject", f
+
 for f in subject_list:
     d =  np.array(h5py.File(f, 'r').get('embedding'))   
     if (29696 == d.shape[0]):
@@ -29,13 +42,14 @@ for f in subject_list:
     else:
         print "bad subject", f
 
+
 print "listed embedding input shape: ", np.shape(embeddings)
 
 # Realign embeddings across subjects
 realigned, xfms = align.iterative_alignment_with_coords(embeddings, 
                                                         coords=None, 
                                                         n_iters=1, 
-                                                        n_samples=0.01, 
+                                                        n_samples=0.1, 
                                                         use_mean=False)
                                                         
 h = h5py.File('tmp.h5', 'w')

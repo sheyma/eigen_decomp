@@ -16,6 +16,7 @@ filelist = []
 # parse command line arguments for embedding components
 parser = argparse.ArgumentParser()
 parser.add_argument("subject",nargs="+")
+parser.add_argument('-o', '--outprfx', required=True)
 args = parser.parse_args()
 
 subject_list = args.subject
@@ -35,13 +36,17 @@ print "listed embedding input shape: ", np.shape(embeddings)
 realigned, xfms = align.iterative_alignment_with_coords(embeddings, 
                                                         coords=None, 
                                                         n_iters=1, 
-                                                        n_samples=0.01, 
+                                                        n_samples=0.1, 
                                                         use_mean=False)
                                                         
-h = h5py.File('tmp.h5', 'w')
+# output prefix
+out_prfx=args.outprfx
+
+# write-out upper-triangular corr-array in HDF5 format
+print "writing-out data in HDF5 format"
+h = h5py.File(out_prfx, 'w')
 h.create_dataset('rel', data=realigned)
 h.close()
-
 
 
 

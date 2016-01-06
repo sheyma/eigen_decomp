@@ -3,9 +3,7 @@ load t-series
 get correlation matrix
 get similarity matrix
 do embedding
-
 """
-
 
 import numpy as np
 import hcp_corr
@@ -44,7 +42,7 @@ for i in range(0, N):
                           N_first=args.N_first, N_cnt=args.N_cnt)
     # get upper triangular of corr matrix
     K = hcp_corr.corrcoef_upper(K)
-    # convert upper triangulat into full corr matrix
+    # convert upper triangular into full corr matrix
     N_orig = hcp_corr.N_original(K)
     K.resize([N_orig, N_orig])
     K = hcp_corr.upper_to_down(K)
@@ -65,10 +63,11 @@ for i in range(0, N):
 
     # write out embedding components, eigenvalues and eigenvectors
     print "writing out embedding results..."
-    if args.hem == 'RH':
-    	outfile = os.path.join(args.outprfx, 'embedding_RH_' + subject_basename + '.h5')
-    else:
-        outfile = os.path.join(args.outprfx, 'embedding_' + subject_basename + '.h5')
+    name = 'embeddings_' + args.hem + '_'
+
+    outfile = os.path.join(args.outprfx, name + subject_basename + '.h5')
+ 
+    print "outfile : ", outfile
     h = h5py.File(outfile , 'w')
     print outfile
     h.create_dataset('embedding', data=embedding)

@@ -63,9 +63,9 @@ for i in range(0, N):
 
     # write out embedding components, eigenvalues and eigenvectors
     print "writing out embedding results..."
-    name = 'embeddings_' + args.hem + '_'
+    name = 'embeddings_' + args.hem + '_' + subject_basename + '.h5'
 
-    outfile = os.path.join(args.outprfx, name + subject_basename + '.h5')
+    outfile = os.path.join(args.outprfx, name)
  
     print "outfile : ", outfile
     h = h5py.File(outfile , 'w')

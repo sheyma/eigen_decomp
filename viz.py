@@ -26,11 +26,11 @@ parser.add_argument("subject",nargs="+")
 args = parser.parse_args()
 
 if args.hemisphere == 'LH':
-    file_name = '/ptmp/sbayrak/bayrak/data_LH.h5'
+    file_name = '/ptmp/sbayrak/data_LH.h5'
 elif args.hemisphere == 'RH':
-    file_name = '/ptmp/sbayrak/bayrak/data_RH.h5'
+    file_name = '/ptmp/sbayrak/data_RH.h5'
 elif args.hemisphere == 'full':
-    file_name = '/ptmp/sbayrak/bayrak/data_full.h5'
+    file_name = '/ptmp/sbayrak/data_full.h5'
 
 # get surface data for corresponding hemisphere    
 n = np.array(h5py.File(file_name, 'r').get('indices'))

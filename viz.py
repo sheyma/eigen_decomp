@@ -1,18 +1,15 @@
 """
 load embedding components
-check if they have NaN entries
-match indices
-plot
+load indices, triangles, vertices of surface
+plot embedding component on brain template
 """
 
-import nibabel as nb
-from nibabel import gifti
 import numpy as np
 import h5py 
 import sys
 import os
-#sys.path.append(os.path.expanduser('/u/sbayrak/devel/brainsurfacescripts'))
-sys.path.append(os.path.expanduser('/home/raid/bayrak/devel/brainsurfacescripts'))
+sys.path.append(os.path.expanduser('/u/sbayrak/devel/brainsurfacescripts'))
+#sys.path.append(os.path.expanduser('/home/raid/bayrak/devel/brainsurfacescripts'))
 
 import plotting
 import argparse
@@ -20,7 +17,7 @@ import argparse
 ## begin parse command line arguments
 parser = argparse.ArgumentParser()
 # data input prefix, e.g. /ptmp/sbayrak/
-parser.add_argument('-i', '--inprfx', required=True)
+parser.add_argument('-hem', '--hemisphere', required=True)
 # output prefix, e.g. /ptmp/sbayrak/hcp_embed_figures/
 parser.add_argument('-o', '--outprfx', required=True)
 # the rest args are the subject path(s), e.g. /ptmp/sbayrak/hcp_embed/*
@@ -28,18 +25,17 @@ parser.add_argument("subject",nargs="+")
 ## end parse command line arguments
 args = parser.parse_args()
 
+if args.hemisphere == 'LH':
+    file_name = '/ptmp/sbayrak/bayrak/data_LH.h5'
+elif args.hemisphere == 'RH':
+    file_name = '/ptmp/sbayrak/bayrak/data_RH.h5'
+elif args.hemisphere == 'full':
+    file_name = '/ptmp/sbayrak/bayrak/data_full.h5'
 
-input_prfx = args.inprfx
-
-# Left hemisphere
-n = np.array(h5py.File( input_prfx + 'indices.h5', 'r').get('LH'))
-vertices = np.array(h5py.File( input_prfx + 'vertices.h5', 'r').get('LH'))
-triangles = np.array(h5py.File( input_prfx + 'triangles.h5', 'r').get('LH'))
-
-## Right hemisphere
-#n = np.array(h5py.File('/nobackup/kocher1/bayrak/indices.h5', 'r').get('RH'))
-#vertex = np.array(h5py.File('/nobackup/kocher1/bayrak/vertices.h5', 'r').get('RH'))
-#triangle = n = np.array(h5py.File('/nobackup/kocher1/bayrak/triangles.h5', 'r').get('RH'))
+# get surface data for corresponding hemisphere    
+n = np.array(h5py.File(file_name, 'r').get('indices'))
+vertices = np.array(h5py.File(file_name, 'r').get('vertices'))
+triangles = np.array(h5py.File(file_name, 'r').get('triangles'))
 
 data = np.zeros(len(vertices))
 
@@ -58,13 +54,15 @@ for i in range(0, N):
     L_embed = Lin.get('embedding')
     L_embed = np.array(L_embed)
 
-    ind = np.where(np.sum(L_embed, axis=1) != 1)
-    data[n[ind]] = L_embed[:,0] 
+    # ind = np.where(np.sum(L_embed, axis=1) != 1)
+    # data[n[ind]] = L_embed[:,0]
 
-    plt = plotting.plot_surf_stat_map(vertices, triangles, stat_map=data, azim=180)
+    data[n] = L_embed[:,0] 
+
+    plt = plotting.plot_surf_stat_map(vertices, triangles, stat_map=data, cmap='jet', azim=90)
     import matplotlib.pyplot as plt
     plt.title(subject_basename)
-    plt.show()
+    plt.show()    
     #plt.savefig(args.outprfx + subject_basename[:-3] + '.png')
 
 #data = np.zeros(len(vertices))

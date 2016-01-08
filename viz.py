@@ -19,19 +19,22 @@ import argparse
 
 ## begin parse command line arguments
 parser = argparse.ArgumentParser()
-
+# data input prefix, e.g. /ptmp/sbayrak/
+parser.add_argument('-i', '--inprfx', required=True)
 # output prefix, e.g. /ptmp/sbayrak/hcp_embed_figures/
 parser.add_argument('-o', '--outprfx', required=True)
 # the rest args are the subject path(s), e.g. /ptmp/sbayrak/hcp_embed/*
 parser.add_argument("subject",nargs="+")
-
-args = parser.parse_args()
 ## end parse command line arguments
+args = parser.parse_args()
+
+
+input_prfx = args.inprfx
 
 # Left hemisphere
-n = np.array(h5py.File('/nobackup/kocher1/bayrak/indices.h5', 'r').get('LH'))
-vertices = np.array(h5py.File('/nobackup/kocher1/bayrak/vertices.h5', 'r').get('LH'))
-triangles = np.array(h5py.File('/nobackup/kocher1/bayrak/triangles.h5', 'r').get('LH'))
+n = np.array(h5py.File( input_prfx + 'indices.h5', 'r').get('LH'))
+vertices = np.array(h5py.File( input_prfx + 'vertices.h5', 'r').get('LH'))
+triangles = np.array(h5py.File( input_prfx + 'triangles.h5', 'r').get('LH'))
 
 ## Right hemisphere
 #n = np.array(h5py.File('/nobackup/kocher1/bayrak/indices.h5', 'r').get('RH'))

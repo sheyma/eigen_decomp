@@ -10,7 +10,6 @@ sys.path.append(os.path.expanduser('~/devel/mapalign/mapalign'))
 import embed, align
 import pandas as pd
 
-
 # Load all embedding variables across subjects as arrays:
 embeddings = [] 
 filelist = []
@@ -45,23 +44,27 @@ args = parser.parse_args()
 #    else:
 #        print "bad subject", f
 
-subfile = pd.read_csv('/nobackup/kocher1/bayrak/subject_list.csv', header=None)
+subfile = pd.read_csv('/ptmp/sbayrak/subject_list.csv', header=None)
 embeddings = []
 for index, row in subfile.iterrows():
-	S = h5py.File('/nobackup/kocher1/bayrak/hcp_embed/embedding_%s.h5' % str(row[0]) , 'r').get('embedding')
+	S = h5py.File('/ptmp/sbayrak/hcp_embed_full/embeddings_full_%s.h5' % str(row[0]) , 'r').get('embedding')
 	embeddings.append(np.array(S))
 	print row[0]
 
-
-
 print "listed embedding input shape: ", np.shape(embeddings)
+
+
+h = h5py.File('/ptmp/sbayrak/tmp/embeddings_full_468.h5', 'w')
+h.create_dataset('embedding', data=embeddings)
+h.close()
 
 print "iterative alignment starts..."
 
-realigned, xfms = align.iterative_alignment(embeddings, n_iters=10)
+realigned, xfms = align.iterative_alignment(embeddings, n_iters=100)
 
 print "iterative alignment finishes..."
 print "realigned shape: ", np.shape(realigned)
+
 ## Realign embeddings across subjects
 #realigned, xfms = align.iterative_alignment_with_coords(embeddings, 
 #                                                        coords=None, 
@@ -75,7 +78,8 @@ out_prfx=args.outprfx
 # write-out upper-triangular corr-array in HDF5 format
 print "writing-out data in HDF5 format"
 h = h5py.File(out_prfx, 'w')
-h.create_dataset('rel', data=realigned)
+h.create_dataset('aligned', data=realigned)
+h.create_dataset('xfms', data=xfms)
 h.close()
 
 

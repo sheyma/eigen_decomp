@@ -12,12 +12,11 @@ sys.path.append(os.path.expanduser('/home/raid/bayrak/devel/brainsurfacescripts'
 
 subfile = pd.read_csv('/nobackup/kocher1/bayrak/subject_list.csv', header=None)
 
-# load 'ind' which are the indices to grap from the sulc file corresponding here to the LH
-img = nb.load('/ptmp/sbayrak/hcp/100307/rfMRI_REST1_LR_Atlas_hp2000_clean.dtseries.nii')
-ind = img.header.matrix.mims[1].brainModels[0].vertexIndices.indices
-surf = gifti.giftiio.read('/home/raid/bayrak/devel/topography/data/Q1-Q6_R440.L.midthickness.32k_fs_LR.surf.gii')
-vertices = np.array(surf.darrays[0].data, dtype=np.float64)
-triangles = np.array(surf.darrays[1].data, dtype=np.int32)
+# Specify the hemisphere data
+file_name = '/nobackup/kocher1/bayrak/data_full.h5'
+ind = np.array(h5py.File(file_name, 'r').get('indices'))
+vertices = np.array(h5py.File(file_name, 'r').get('vertices'))
+triangles = np.array(h5py.File(file_name, 'r').get('triangles'))
 
 # load sulc
 D = []
@@ -31,25 +30,34 @@ D = np.array(D)
 # load embedding
 E = []
 for index, row in subfile.iterrows():
-	S = h5py.File('/nobackup/kocher1/bayrak/hcp_embed/embedding_%s.h5' % str(row[0]) , 'r').get('embedding')
+	S = h5py.File('/nobackup/kocher1/bayrak/hcp_embed_full/embeddings_full_%s.h5' % str(row[0]) , 'r').get('embedding')
 	E.append(np.array(S))
 	print row[0]
 
 E = np.array(E) 
 
+
+
 # load aligned
-A_init = h5py.File('/nobackup/kocher1/bayrak/tmp/aligned_468.h5', 'r')
-A = A_init.get('rel')
-A = np.array(A)
+A_init = h5py.File('/nobackup/kocher1/bayrak/tmp/realigned_100n_468.h5', 'r')
+A = np.array(A_init.get('aligned'))
+
 
 # save group-level matrices:
-h = h5py.File('/nobackup/kocher1/bayrak/hcp_embed/sulc_468.h5', 'w')
+h = h5py.File('/nobackup/kocher1/bayrak/tmp/sulc_468.h5', 'w')
 h.create_dataset('sulc', data=D)
 h.close()
 
-h = h5py.File('/nobackup/kocher1/bayrak/hcp_embed/embedding_468.h5', 'w')
-h.create_dataset('embedding', data=E)
-h.close()
+#h = h5py.File('/nobackup/kocher1/bayrak/tmp/embeddings_full_468.h5', 'w')
+#h.create_dataset('embedding', data=E)
+#h.close()
+
+
+E_in = h5py.File('/nobackup/kocher1/bayrak/tmp/embeddings_full_468.h5', 'r')
+E = np.array(E_in.get('embedding'))
+
+D_in = h5py.File('/nobackup/kocher1/bayrak/tmp/sulc_468.h5', 'r')
+D = np.array(D_in.get('sulc'))
 
 
 # Correlate two datasets
@@ -60,11 +68,12 @@ for i in range(np.shape(E)[1]):
 C = np.array(C)
 
 # Vizualize data:
-data = np.zeros(32492)
+data = np.zeros(len(vertices))
 data[ind] = C
-plt = plotting.plot_surf_stat_map(vertices, triangles, stat_map=data, azim=180)
-plt.show()
 plt = plotting.plot_surf_stat_map(vertices, triangles, stat_map=data, azim=0)
+plt = plotting.plot_surf_stat_map(vertices, triangles, stat_map=data, azim=90)
+plt = plotting.plot_surf_stat_map(vertices, triangles, stat_map=data, azim=180)
+plt = plotting.plot_surf_stat_map(vertices, triangles, stat_map=data, azim=270)
 plt.show()
 
   

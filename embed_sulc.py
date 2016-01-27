@@ -18,54 +18,30 @@ ind = np.array(h5py.File(file_name, 'r').get('indices'))
 vertices = np.array(h5py.File(file_name, 'r').get('vertices'))
 triangles = np.array(h5py.File(file_name, 'r').get('triangles'))
 
-# load sulc
-D = []
-for index, row in subfile.iterrows():
-	S = nb.load('/a/documents/connectome/_all/%s/MNINonLinear/fsaverage_LR32k/%s.sulc.32k_fs_LR.dscalar.nii' % (str(row[0]),str(row[0])))
-	print i 
-	D.append(S.data[ind])
-
-D = np.array(D) 
 
 # load embedding
-E = []
-for index, row in subfile.iterrows():
-	S = h5py.File('/nobackup/kocher1/bayrak/hcp_embed_full/embeddings_full_%s.h5' % str(row[0]) , 'r').get('embedding')
-	E.append(np.array(S))
-	print row[0]
-
-E = np.array(E) 
-
-
-
-# load aligned
-A_init = h5py.File('/nobackup/kocher1/bayrak/tmp/realigned_100n_468.h5', 'r')
-A = np.array(A_init.get('aligned'))
-
-
-# save group-level matrices:
-h = h5py.File('/nobackup/kocher1/bayrak/tmp/sulc_468.h5', 'w')
-h.create_dataset('sulc', data=D)
-h.close()
-
-#h = h5py.File('/nobackup/kocher1/bayrak/tmp/embeddings_full_468.h5', 'w')
-#h.create_dataset('embedding', data=E)
-#h.close()
-
-
 E_in = h5py.File('/nobackup/kocher1/bayrak/tmp/embeddings_full_468.h5', 'r')
 E = np.array(E_in.get('embedding'))
 
-D_in = h5py.File('/nobackup/kocher1/bayrak/tmp/sulc_468.h5', 'r')
+# load aligned
+A_init = h5py.File('/nobackup/kocher1/bayrak/tmp/realigned_full_n10_468.h5', 'r')
+A = np.array(A_init.get('aligned'))
+
+# load sulc
+D_in = h5py.File('/nobackup/kocher1/bayrak/tmp/sulc_full_468.h5', 'r')
 D = np.array(D_in.get('sulc'))
 
+# get first component
+A = A[:,:,0]
 
 # Correlate two datasets
 C = []
-for i in range(np.shape(E)[1]):
-	C.append(np.cov(E.T[0][i],D.T[i])[0][1])
-	print i
+for i in range(np.shape(A)[1]):
+    # covariance of one region (over subjects) in two datasets
+    C.append(np.cov(A[:,i],D[:,i])[0][1])
+    print i
 C = np.array(C)
+
 
 # Vizualize data:
 data = np.zeros(len(vertices))

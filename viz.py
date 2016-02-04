@@ -43,7 +43,7 @@ def get_mean(DATA, subject_list, component = 0, mode = 'aligned'):
     DATA_all = []    
     for subject_id in subject_list:
         subject_id = ''.join(subject_id)
-        tmp = np.array(DATA[subject_id]['aligned'])[:,component]
+        tmp = np.array(DATA[subject_id][mode])[:,component]
         DATA_all.append(tmp)
     DATA_mean = np.mean(DATA_all, axis=0)
     return DATA_mean
@@ -76,7 +76,7 @@ hemisphere = 'full'
 surface_type = 'inflated'
 n, vertices, triangles = get_surface(surface_data, hemisphere, surface_type)
 
-DATA = h5py.File(path + '468_alignments.h5', 'r')
+DATA = h5py.File(path + '468_smoothed_wp00005.h5', 'r')
 
 # plot subjects individually
 #for subject_id in subject_list:
@@ -98,15 +98,14 @@ DATA = h5py.File(path + '468_alignments.h5', 'r')
 # plot a mean component over all subjects
 components = np.arange(0, 10, 1)
 for component in components:
-    print component
-    mode = 'aligned'
+    mode = 'smooth'
     DATA_mean = get_mean(DATA, subject_list, component=component, mode=mode)
     data = np.zeros(len(vertices))
     data[n] = DATA_mean
     plotting.plot_surf_stat_map(vertices, triangles, stat_map=data, cmap='jet', azim=0)
     import matplotlib.pyplot as plt
-    plt.title('mean_' + mode  + ' , component ' + str(component+1))   
-    plt.savefig(path_out + 'mean_'+  mode + '_comp_' + str(component+1)+ '.png')
+    plt.title('mean_gauss_wp00005' +  ' , component ' + str(component+1))   
+    plt.savefig(path_out + 'mean_gauss_wp00005'+  mode + '_comp_' + str(component+1)+ '.png')
     
     
 #A_init = h5py.File('/nobackup/kocher1/bayrak/tmp/RcovS_468.h5', 'r')

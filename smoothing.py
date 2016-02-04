@@ -1,25 +1,8 @@
 import h5py
 import numpy as np
 import csv
-import matplotlib.pylab as plt
+import matplotlib.pyplot as plt
 from scipy.ndimage.filters import gaussian_filter1d
-
-path = '/ptmp/sbayrak/tmp/'
-subject_list = []
-with open(path + 'subject_list.csv', 'rb') as f:
-    reader = csv.reader(f);
-    subject_list = list(reader);
-
-random_int = np.random.permutation(len(subject_list))[0]
-subject_id = subject_list[random_int] 
-subject_id = ''.join(subject_id)
-print "chosen HCP subject : ", subject_id
-
-# take the first (aligned) component of a random subject
-aligned_all = h5py.File(path + '468_alignments.h5', 'r')
-tmp = aligned_all[subject_id]['aligned']
-tmp = np.array(tmp)
-tmp = tmp[:,0]
 
 
 def smooth(x, window_len=11, window='hanning'):
@@ -66,18 +49,85 @@ def smooth(x, window_len=11, window='hanning'):
 
     return y
 
-window = 'bartlett'
-plt.figure(1); plt.plot(tmp, 'b');
-plt.title(window)
-window_lengths = [0.005, 0.01, 0.02, 0.03, 0.04]     
-colors = 'rgcyk'
-j = 0;
-for i in window_lengths:
-    window_len = i * len(tmp)
-    TMP = smooth(tmp, window_len, window)
-    plt.plot(TMP, colors[j], label=str(i))
-    j += 1    
-    print window_len    
+def get_surface(surface_data, hemisphere, surface_type):
+    """
+    surface_data = hdf5 formatted surface data
+    hemisphere = 'LH', 'RH', or 'full'
+    surface_type = 'midthickness', 'inflated', or 'very_inflated'
+    """
+
+    tmp = h5py.File(surface_data, 'r')
+    indices = np.array( tmp[hemisphere][surface_type]['indices'] )
+    vertices = np.array( tmp[hemisphere][surface_type]['vertices'] )    
+    triangles = np.array( tmp[hemisphere][surface_type]['triangles'])
     
-plt.legend()
-plt.show()
+    return indices, vertices, triangles
+
+#path = '/home/sheyma/tmp/'
+path = '/ptmp/sbayrak/tmp'
+
+surface_data = path + 'data_surface.h5'
+hemisphere = 'full'
+surface_type = 'inflated'
+n, vertices, triangles = get_surface(surface_data, hemisphere, surface_type)
+
+
+subject_list = []
+with open(path + 'subject_list.csv', 'rb') as f:
+    reader = csv.reader(f);
+    subject_list = list(reader);
+
+DATA = h5py.File(path + '468_alignments.h5', 'r')
+
+window = 'gaussian'
+window_percent = 0.0005
+components = np.arange(0, 10, 1)
+
+f = h5py.File(path + 'test.h5', 'w')
+f = h5py.File(path + 'test.h5', 'r+')
+
+for subject_id in subject_list:
+    subject_id = ''.join(subject_id)
+    print subject_id
+    A = []
+    tmp = DATA[subject_id]['aligned']
+    tmp = np.array(tmp)    
+    for component in components:        
+        tmp_column= tmp[:, component]
+        window_len = len(tmp_column) * window_percent
+        tmp_smooth = smooth(tmp_column, window_len, window)
+        A.append(tmp_smooth)   
+    A = np.transpose(np.array(A))
+    group_id = f.create_group(subject_id)
+    group_id.create_dataset('smooth', data = A)
+    del tmp_column, tmp_smooth   
+    
+f.close()
+
+
+#data = np.zeros(len(vertices))
+#data[n] = tmp_smooth
+#
+#plt = plotting.plot_surf_stat_map(vertices, triangles, stat_map=data, cmap='jet', azim=0)    
+#
+#data[n] = A[:,9]
+#plt = plotting.plot_surf_stat_map(vertices, triangles, stat_map=data, cmap='jet', azim=0)    
+#
+#    
+#import matplotlib.pyplot as plt
+#window = 'gaussian'
+#plt.figure(1); plt.plot(tmp, 'b');
+#plt.title(window)
+#window_perc = [0.00025, 0.0005, 0.0010, 0.0025, 0.0050 ]     
+#colors = 'rgcyk'
+#j = 0;
+#for i in window_perc:
+#    window_len = i * len(tmp)
+#    TMP = smooth(tmp, window_len, window)
+#    plt.plot(TMP, colors[j], label=str(i))
+#    j += 1    
+#    print window_len        
+#plt.legend()
+#plt.show()
+
+

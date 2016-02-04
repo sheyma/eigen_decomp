@@ -98,7 +98,7 @@ DATA = h5py.File(path + '468_alignments.h5', 'r')
 # plot a mean component over all subjects
 components = np.arange(0, 10, 1)
 for component in components:
-    component = 0
+    print component
     mode = 'aligned'
     DATA_mean = get_mean(DATA, subject_list, component=component, mode=mode)
     data = np.zeros(len(vertices))

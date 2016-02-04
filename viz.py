@@ -38,15 +38,47 @@ def choose_component(DATA, subject_id, component = 0, mode = 'aligned'):
     A = A[:, component]
     return A
     
-def get_mean(DATA, subject_list, component = 0, mode = 'aligned'):
+def get_mean(DATA, subject_list, component = None, mode = 'aligned'):
     # get mean of a component over all subjects    
     DATA_all = []    
     for subject_id in subject_list:
         subject_id = ''.join(subject_id)
-        tmp = np.array(DATA[subject_id][mode])[:,component]
+        
+        if component != None:
+            tmp = np.array(DATA[subject_id][mode])[:,component]
+        else:
+            tmp = np.array(DATA[subject_id][mode])
+            
         DATA_all.append(tmp)
     DATA_mean = np.mean(DATA_all, axis=0)
     return DATA_mean
+
+def get_cov(DATA, DATA_new, mode, mode_new, subject_list, component):
+   
+    DATA_comp = []    
+    DATA_NEW = []
+        
+    for subject_id in subject_list:
+        subject_id = ''.join(subject_id)
+
+        tmp = np.array(DATA[subject_id][mode])
+        DATA_comp.append(tmp[:, component])
+        
+        tmp_new = np.array(DATA_new[subject_id][mode_new])
+        DATA_NEW.append(tmp_new)
+    
+    DATA_comp = np.array(DATA_comp)
+    DATA_NEW = np.array(DATA_NEW)
+    
+    C = []
+    for i in range(np.shape(DATA_comp)[1]):
+        # covariance of one region (over subjects) in two datasets
+        C.append(np.cov(DATA_comp[:,i] , DATA_NEW[:,i])[0][1])
+        print i
+        
+    C = np.array(C)
+    
+    return C
     
 def get_surface(surface_data, hemisphere, surface_type):
     """
@@ -54,13 +86,13 @@ def get_surface(surface_data, hemisphere, surface_type):
     hemisphere = 'LH', 'RH', or 'full'
     surface_type = 'midthickness', 'inflated', or 'very_inflated'
     """
-
     tmp = h5py.File(surface_data, 'r')
     indices = np.array( tmp[hemisphere][surface_type]['indices'] )
     vertices = np.array( tmp[hemisphere][surface_type]['vertices'] )    
     triangles = np.array( tmp[hemisphere][surface_type]['triangles'])
     
     return indices, vertices, triangles
+
 
 # here we go...
 path = args.inprfx
@@ -76,7 +108,8 @@ hemisphere = 'full'
 surface_type = 'inflated'
 n, vertices, triangles = get_surface(surface_data, hemisphere, surface_type)
 
-DATA = h5py.File(path + '468_smoothed_wp00005.h5', 'r')
+DATA = h5py.File(path + '468_alignments.h5', 'r')
+
 
 # plot subjects individually
 #for subject_id in subject_list:
@@ -106,9 +139,18 @@ for component in components:
     import matplotlib.pyplot as plt
     plt.title('mean_gauss_wp00005' +  ' , component ' + str(component+1))   
     plt.savefig(path_out + 'mean_gauss_wp00005'+  mode + '_comp_' + str(component+1)+ '.png')
-    
-    
-#A_init = h5py.File('/nobackup/kocher1/bayrak/tmp/RcovS_468.h5', 'r')
-#A = np.array(A_init.get('cov'))
+
+DATA = h5py.File(path + '468_alignments.h5', 'r')
+DATA_new = h5py.File(path +  '468_sulcs.h5' , 'r')
+
+component = 0
+mode = 'aligned'
+mode_new = 'sulc'
+
+cov_array = get_cov(DATA,DATA_new, mode, mode_new, subject_list, component )
+
+data = np.zeros(len(vertices))
+data[n] = cov_array
+plotting.plot_surf_stat_map(vertices, triangles, stat_map=data, cmap='jet', azim=0)
 
 

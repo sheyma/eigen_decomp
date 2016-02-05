@@ -31,11 +31,13 @@ def choose_random_subject(subject_list):
     print "chosen HCP subject : ", subject_id
     return subject_id
 
-def choose_component(DATA, subject_id, component = 0, mode = 'aligned'):
-    # choose a component of given subject    
-    A = DATA[subject_id][mode]
-    A = np.array(A)
-    A = A[:, component]
+def choose_component(DATA, subject_id, component = None, mode = 'aligned'):
+    # choose all components of a given subject    
+    A = DATA[subject_id][mode]    
+    A = np.array(A)    
+    # choose a specified component of a given subject
+    if component != None:
+        A = A[:, component]
     return A
     
 def get_mean(DATA, subject_list, component = None, mode = 'aligned'):

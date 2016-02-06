@@ -132,15 +132,27 @@ for subject_id in subject_list[0]:
     plt.title(subject_id + ' , component ' + str(component+1))
     #plt.savefig(path_out + subject_id + '_comp_' + str(component+1)+ '.png')
 
+# save out group level results...
+tmp_list = []
+
 # plot a component over all subjects
 components = np.arange(0, 10, 1)
 for component in components:
     #tmp = get_mean(DATA, subject_list, mode, component)
+   
     tmp = get_cov(DATA, DATA_new, subject_list, mode, mode_new, 
                       comp=component, comp_new=None)    
+    tmp_list.append(tmp)
     
-    data = np.zeros(len(vertices))
-    data[n] = tmp
-    plotting.plot_surf_stat_map(vertices, triangles, stat_map=data, cmap='jet', azim=0)
-    plt.title('aligned_COV_sulc' +  ' , component ' + str(component+1))   
-    plt.savefig(path_out + 'a_COV_s'+ '_comp_' + str(component+1)+ '.png')
+    #data = np.zeros(len(vertices))
+    #data[n] = tmp
+    #plotting.plot_surf_stat_map(vertices, triangles, stat_map=data, cmap='jet', azim=0)
+    #plt.title('aligned_COV_sulc' +  ' , component ' + str(component+1))   
+    #plt.savefig(path_out + 'a_COV_s'+ '_comp_' + str(component+1)+ '.png')
+
+
+print "group level matrix shape: ", np.shape(tmp_list)
+f = h5py.File(path + 'test_cov.h5', 'w')
+f.create_dataset('cov', data=np.transpose(np.array(tmp_list)))
+
+

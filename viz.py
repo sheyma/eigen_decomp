@@ -9,11 +9,12 @@ import h5py
 import sys
 import os
 import csv
-#sys.path.append(os.path.expanduser('/u/sbayrak/devel/brainsurfacescripts'))
+sys.path.append(os.path.expanduser('/u/sbayrak/devel/brainsurfacescripts'))
 #sys.path.append(os.path.expanduser('/home/raid/bayrak/devel/brainsurfacescripts'))
-sys.path.append(os.path.expanduser('/home/sheyma/devel/brainsurfacescripts'))
+#sys.path.append(os.path.expanduser('/home/sheyma/devel/brainsurfacescripts'))
 import plotting
 import argparse
+import matplotlib.pyplot as plt
 
 ## begin parse command line arguments
 parser = argparse.ArgumentParser()
@@ -112,46 +113,34 @@ surface_type = 'inflated'
 n, vertices, triangles = get_surface(surface_data, hemisphere, surface_type)
 
 DATA = h5py.File(path + '468_alignments.h5', 'r')
+mode = 'aligned'
 
+DATA_new = h5py.File(path +  '468_sulcs.h5' , 'r')
+mode_new = 'sulc'
 
 # plot subjects individually
-#for subject_id in subject_list:
-#    ## chose subject_id randomly     
-#    #subject_id = choose_random_subject(subject_list)
-#    #subject_id = '100307'
-#    subject_id = ''.join(subject_id)
-#    component = 0
-#    mode = 'aligned'
-#    subject_component = choose_component(DATA, subject_id, component, mode)
-#    data = np.zeros(len(vertices))
-#    data[n] = subject_component
-#    plt = plotting.plot_surf_stat_map(vertices, triangles, stat_map=data, cmap='jet', azim=0)
-#    import matplotlib.pyplot as plt
-#    plt.title(subject_id + ' , component ' + str(component+1))
-#    plt.savefig(path_out + subject_id + '_comp_' + str(component+1)+ '.png')
+for subject_id in subject_list[0]:
+    ## chose subject_id randomly     
+    #subject_id = choose_random_subject(subject_list)
+    #subject_id = '100307'
+    subject_id = ''.join(subject_id)
+    component = 0
+    subject_component = choose_component(DATA, subject_id, mode, component)
+    data = np.zeros(len(vertices))
+    data[n] = subject_component
+    plotting.plot_surf_stat_map(vertices, triangles, stat_map=data, cmap='jet', azim=90)
+    plt.title(subject_id + ' , component ' + str(component+1))
+    #plt.savefig(path_out + subject_id + '_comp_' + str(component+1)+ '.png')
 
-
-# plot a mean component over all subjects
+# plot a component over all subjects
 components = np.arange(0, 10, 1)
 for component in components:
-    mode = 'smooth'
-    DATA_mean = get_mean(DATA, subject_list, component=component, mode=mode)
+    #tmp = get_mean(DATA, subject_list, mode, component)
+    tmp = get_cov(DATA, DATA_new, subject_list, mode, mode_new, 
+                      comp=component, comp_new=None)    
+    
     data = np.zeros(len(vertices))
-    data[n] = DATA_mean
+    data[n] = tmp
     plotting.plot_surf_stat_map(vertices, triangles, stat_map=data, cmap='jet', azim=0)
-    import matplotlib.pyplot as plt
-    plt.title('mean_gauss_wp00005' +  ' , component ' + str(component+1))   
-    plt.savefig(path_out + 'mean_gauss_wp00005'+  mode + '_comp_' + str(component+1)+ '.png')
-
-DATA = h5py.File(path + '468_alignments.h5', 'r')
-DATA_new = h5py.File(path +  '468_sulcs.h5' , 'r')
-
-
-C = get_cov(DATA, DATA_new, subject_list, mode='aligned', mode_new='sulc', 
-            comp=0, comp_new=None)
-
-data = np.zeros(len(vertices))
-data[n] = C
-plotting.plot_surf_stat_map(vertices, triangles, stat_map=data, cmap='jet', azim=0)
-
-
+    plt.title('aligned_COV_sulc' +  ' , component ' + str(component+1))   
+    plt.savefig(path_out + 'a_COV_s'+ '_comp_' + str(component+1)+ '.png')

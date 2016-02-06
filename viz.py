@@ -9,9 +9,9 @@ import h5py
 import sys
 import os
 import csv
-sys.path.append(os.path.expanduser('/u/sbayrak/devel/brainsurfacescripts'))
+#sys.path.append(os.path.expanduser('/u/sbayrak/devel/brainsurfacescripts'))
 #sys.path.append(os.path.expanduser('/home/raid/bayrak/devel/brainsurfacescripts'))
-#sys.path.append(os.path.expanduser('/home/sheyma/devel/brainsurfacescripts'))
+sys.path.append(os.path.expanduser('/home/sheyma/devel/brainsurfacescripts'))
 import plotting
 import argparse
 
@@ -31,7 +31,7 @@ def choose_random_subject(subject_list):
     print "chosen HCP subject : ", subject_id
     return subject_id
 
-def choose_component(DATA, subject_id, component = None, mode = 'aligned'):
+def choose_component(DATA, subject_id, mode, component = None):
     # choose all components of a given subject    
     A = DATA[subject_id][mode]    
     A = np.array(A)    
@@ -39,48 +39,49 @@ def choose_component(DATA, subject_id, component = None, mode = 'aligned'):
     if component != None:
         A = A[:, component]
     return A
-    
-def get_mean(DATA, subject_list, component = None, mode = 'aligned'):
+      
+def get_mean(DATA, subject_list, mode, component = None):
     # get mean of a component over all subjects    
     DATA_all = []    
     for subject_id in subject_list:
         subject_id = ''.join(subject_id)
         
         if component != None:
-            tmp = np.array(DATA[subject_id][mode])[:,component]
+            tmp = choose_component(DATA, subject_id, mode, component)
+            
         else:
-            tmp = np.array(DATA[subject_id][mode])
+            tmp = choose_component(DATA, subject_id, mode)            
             
         DATA_all.append(tmp)
     DATA_mean = np.mean(DATA_all, axis=0)
     return DATA_mean
 
-def get_cov(DATA, DATA_new, mode, mode_new, subject_list, component):
+def get_cov(DATA, DATA_new, subject_list, mode, mode_new, comp, comp_new):
    
-    DATA_comp = []    
-    DATA_NEW = []
+    DATA_list = []    
+    DATA_new_list = []
         
     for subject_id in subject_list:
         subject_id = ''.join(subject_id)
 
-        tmp = np.array(DATA[subject_id][mode])
-        DATA_comp.append(tmp[:, component])
-        
-        tmp_new = np.array(DATA_new[subject_id][mode_new])
-        DATA_NEW.append(tmp_new)
+        tmp = choose_component(DATA, subject_id, mode, comp)
+        DATA_list.append(tmp)
+       
+        tmp_new = choose_component(DATA_new, subject_id, mode_new, comp_new)
+        DATA_new_list.append(tmp_new)
     
-    DATA_comp = np.array(DATA_comp)
-    DATA_NEW = np.array(DATA_NEW)
+    DATA_01 = np.array(DATA_list)
+    DATA_02 = np.array(DATA_new_list)
     
     C = []
-    for i in range(np.shape(DATA_comp)[1]):
+    for i in range(np.shape(DATA_01)[1]):
         # covariance of one region (over subjects) in two datasets
-        C.append(np.cov(DATA_comp[:,i] , DATA_NEW[:,i])[0][1])
+        C.append(np.cov(DATA_01[:,i] , DATA_02[:,i])[0][1])
         print i
         
-    C = np.array(C)
-    
+    C = np.array(C) 
     return C
+
     
 def get_surface(surface_data, hemisphere, surface_type):
     """
@@ -145,14 +146,12 @@ for component in components:
 DATA = h5py.File(path + '468_alignments.h5', 'r')
 DATA_new = h5py.File(path +  '468_sulcs.h5' , 'r')
 
-component = 0
-mode = 'aligned'
-mode_new = 'sulc'
 
-cov_array = get_cov(DATA,DATA_new, mode, mode_new, subject_list, component )
+C = get_cov(DATA, DATA_new, subject_list, mode='aligned', mode_new='sulc', 
+            comp=0, comp_new=None)
 
 data = np.zeros(len(vertices))
-data[n] = cov_array
+data[n] = C
 plotting.plot_surf_stat_map(vertices, triangles, stat_map=data, cmap='jet', azim=0)
 
 

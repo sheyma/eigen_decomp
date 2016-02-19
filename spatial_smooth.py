@@ -31,9 +31,19 @@ DATA_all = np.array(DATA_all)
 tmp_read_LH = pd.read_csv(path + 'data_32492_left_01.csv', header=None)
 tmp_read_LH = np.array(tmp_read_LH)
 
-smoother = fs.SurfaceSmooth()
-smoother.inputs.in_file = path + 'data_32492_left_01.csv'
-smoother.inputs.subject_id = '100307'
-smoother.inputs.hemi = 'lh'
-smoother.inputs.fwhm = 5
-smoother.run()
+name = '/a/documents/connectome/_all/100307/MNINonLinear/Results/rfMRI_REST1_LR/brainmask_fs.2.nii.gz'
+img = nb.load(name)
+
+A = nb.load('/a/documents/connectome/_all/100307/MNINonLinear/Results/rfMRI_REST1_LR/rfMRI_REST1_LR_Atlas_hp2000_clean.dtseries.nii')
+dir(A)
+A = nb.nifti2.load('/a/documents/connectome/_all/100307/MNINonLinear/Results/rfMRI_REST1_LR/rfMRI_REST1_LR_Atlas_hp2000_clean.dtseries.nii')
+dir(A)
+A.get_data().shape
+tmp = np.random.rand(1, 1, 1, 1, 1,  91282)
+A.dataobj[:] = tmp
+outcifti = nb.nifti2.Nifti2Image(tmp, A.get_affine(), header=A.get_header())
+outcifti.to_filename('tmp.nii')
+
+# fill uninteresting parts by NaN's
+
+

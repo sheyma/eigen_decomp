@@ -29,8 +29,13 @@ for i in range(0, len(filenames)):
     m[np.where(np.isnan(m) == True)] = 0
     ind = np.where(np.sum(m, axis=1) != 1)
 
-    embedding, results = embed.compute_diffusion_map(m[ind].T[ind].T, 
-                                                     n_components=10)	
+    try:
+        embedding, results = embed.compute_diffusion_map(m[ind].T[ind].T, 
+                                                         n_components=10)	
+    except:
+        print "graphs is disconnected in ", subject_id 
+        continue                                                       
+    
     h = h5py.File(f_out, 'w')
     h.create_dataset('embedding', data = embedding)
     h.create_dataset('lambdas', data = results['lambdas'])

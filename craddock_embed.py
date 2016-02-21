@@ -10,6 +10,7 @@ import argparse
 parser = argparse.ArgumentParser()
 # input prefix for subject path(s), e.g. /ptmp/sbayrak/hcp/*
 parser.add_argument("subject_dirs", nargs="+")
+parser.add_argument('-o', '--outprfx', required=True)
 args = parser.parse_args()
 
 filenames = np.array(args.subject_dirs)
@@ -17,7 +18,9 @@ filenames = np.array(args.subject_dirs)
 for i in range(0, len(filenames)):
     print "do loop %d/%d, %s" % (i+1, len(filenames), filenames[i])
     f_in = os.path.join(filenames[i], 'matrix.pkl')
-    f_out = os.path.join(filenames[i], 'embedding.h5')		
+    subject_id = os.path.basename(filenames[i])	
+    f_out = os.path.join(args.outprfx, subject_id + '_embeddings.h5')		
+    print f_out	
     m = pickle.load(open(f_in))['correlation']	
     m += 1.0
     m /= 2.0

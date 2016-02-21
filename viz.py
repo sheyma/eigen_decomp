@@ -109,7 +109,7 @@ with open(path + 'subject_list.csv', 'rb') as f:
 
 surface_data = path + 'data_surface.h5'
 hemisphere = 'full'
-surface_type = 'inflated'
+surface_type = 'midthickness'
 n, vertices, triangles = get_surface(surface_data, hemisphere, surface_type)
 
 DATA = h5py.File(path + '468_alignments.h5', 'r')

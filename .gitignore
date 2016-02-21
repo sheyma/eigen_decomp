@@ -35,6 +35,9 @@ tmp/
 *.xz
 *.h5
 
+# data dir to ignore
+data
+
 # job outputs
 *.err
 *.out

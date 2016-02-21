@@ -51,14 +51,9 @@ for i in range(0, N):
     K +=1.0
     K /=2.0
     
-    # set NaN entries to 0
-    K[np.where(np.isnan(K) == True)] = 0
-    # ignore zero entries?
-    ind = np.where(np.sum(K,axis=1) != 1)     
-    
     # do embedding on similarity matrix
     print "do embedding..."
-    embedding, result = embed.compute_diffusion_map(K[ind].T[ind].T, 
+    embedding, result = embed.compute_diffusion_map(K, 
                                                     n_components=10)
 
     # write out embedding components, eigenvalues and eigenvectors

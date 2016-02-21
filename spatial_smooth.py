@@ -3,14 +3,16 @@ import nibabel as nb
 import h5py
 import csv
 from subprocess import call
+import argparse
 
-subject_list = []
-with open('/home/sheyma/tmp/subject_list.csv', 'rb') as f:
-    reader = csv.reader(f);
-    subject_list = list(reader);
 
-DATA = h5py.File('/home/sheyma/tmp/468_alignments.h5', 'r')
-mode = 'aligned'
+## begin parse command line arguments
+parser = argparse.ArgumentParser()
+# output prefix, e.g. /ptmp/sbayrak/smooth
+parser.add_argument('-o', '--outprfx', required=True)
+## end parse command line arguments
+args = parser.parse_args()
+
 
 def choose_component(DATA, subject_id, mode, component = None):
     # choose all components of a given subject    
@@ -21,13 +23,23 @@ def choose_component(DATA, subject_id, mode, component = None):
         A = A[:, component]
     return A
 
+# create a symbolic link for the "data" directory!
+subject_list = []
+with open('data/subject_list.csv', 'rb') as f:
+    reader = csv.reader(f);
+    subject_list = list(reader);
 
-surf_lh = "/home/sheyma/devel/topography/data/Q1-Q6_R440.L.midthickness.32k_fs_LR.surf.gii"
-surf_rh = "/home/sheyma/devel/topography/data/Q1-Q6_R440.R.midthickness.32k_fs_LR.surf.gii"
 
-filename = '/home/sheyma/tmp/100307/rfMRI_REST1_LR_Atlas_hp2000_clean.dtseries.nii'
+DATA = h5py.File('data/468_alignments.h5', 'r')
+mode = 'aligned'
+
+surf_lh = "data/Q1-Q6_R440.L.midthickness.32k_fs_LR.surf.gii"
+surf_rh = "data/Q1-Q6_R440.R.midthickness.32k_fs_LR.surf.gii"
+
+filename = 'data/100307/rfMRI_REST1_LR_Atlas_hp2000_clean.dtseries.nii'
 A = nb.load(filename)
 
+path_out = args.outprfx
 
 component = 0
 DATA_all = []
@@ -40,20 +52,20 @@ for subject_id in subject_list[0]:
     A.data[0, 0:len(tmp)] = tmp
     A.data[0, len(tmp):np.shape(A.data)[1]] = np.NaN
     A.data[1:, :] = np.NaN
-    A.to_filename('/home/sheyma/tmp/' + subject_id + '_align.nii')
     
-    B = '/home/sheyma/tmp/' + subject_id + '_align.nii' 
-    C = '/home/sheyma/tmp/' + subject_id + '_align_smooth.nii'
+    B = path_out + subject_id + '_align.nii' 
+    C = path_out + subject_id + '_align_smooth.nii'
+    A.to_filename(B)
 
     retcode = call(["wb_command", "-cifti-smoothing",  B, "2", "2", "COLUMN",
                     C, "-left-surface", surf_lh, "-right-surface", surf_rh])  
 
-    print retcode
-    
+    if retcode != 0:
+        print "Error with wb_command"
+        break
+
     D = nb.load(C)
     D = np.array(D.data[0, 0:len(tmp)])    
-    h = h5py.File('/home/sheyma/tmp/'+ subject_id+'align_smooth_59412.h5','w')
+    h = h5py.File(path_out + subject_id + '_align_smooth_59412.h5','w')
     h.create_dataset('smooth', data=D)
     h.close()
-
-

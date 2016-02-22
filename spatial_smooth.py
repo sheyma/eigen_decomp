@@ -66,6 +66,6 @@ for subject_id in subject_list[0]:
 
     D = nb.load(C)
     D = np.array(D.data[0, 0:len(tmp)])    
-    h = h5py.File(path_out + subject_id + '_align_smooth_59412.h5','w')
+    h = h5py.File(path_out + subject_id + '_smooth_59412.h5','w')
     h.create_dataset('smooth', data=D)
     h.close()

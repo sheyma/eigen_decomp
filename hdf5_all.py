@@ -3,6 +3,7 @@ import numpy as np
 import csv
 
 path = '/ptmp/sbayrak/tmp/'
+path01 = '/ptmp/sbayrak/smoothing/'
 
 subject_list = []
 with open(path + 'subject_list.csv', 'rb') as f:
@@ -12,10 +13,10 @@ with open(path + 'subject_list.csv', 'rb') as f:
 k = h5py.File(path + '468_smoothing.h5', 'w')
 k = h5py.File(path + '468_smoothing.h5', 'r+')
 
-for subject_id in subject_list[0]:
+for subject_id in subject_list:
     subject_id = ''.join(subject_id)
     print subject_id
-    tmp_name = subject_id +'_smooth_59412.h5'    
+    tmp_name = path01 + subject_id +'_smooth_59412.h5'    
     tmp = np.array(h5py.File(tmp_name, 'r')['smooth'])
     
     group_k = k.create_group(subject_id)

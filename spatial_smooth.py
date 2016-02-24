@@ -57,15 +57,16 @@ for subject_id in subject_list[0]:
     C = path_out + subject_id + '_align_smooth.nii'
     A.to_filename(B)
 
-    retcode = call(["wb_command", "-cifti-smoothing",  B, "2", "2", "COLUMN",
+    retcode = call(["wb_command", "-cifti-smoothing",  B, "4", "2", "COLUMN",
                     C, "-left-surface", surf_lh, "-right-surface", surf_rh])  
 
     if retcode != 0:
         print "Error with wb_command"
         break
 
+    suffix = '_smooth_59412_0'+ str(component) + '.h5'
     D = nb.load(C)
     D = np.array(D.data[0, 0:len(tmp)])    
-    h = h5py.File(path_out + subject_id + '_smooth_59412.h5','w')
+    h = h5py.File(path_out + subject_id + suffix, 'w')
     h.create_dataset('smooth', data=D)
     h.close()

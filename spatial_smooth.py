@@ -5,14 +5,12 @@ import csv
 from subprocess import call
 import argparse
 
-
 ## begin parse command line arguments
 parser = argparse.ArgumentParser()
 # output prefix, e.g. /ptmp/sbayrak/smooth
 parser.add_argument('-o', '--outprfx', required=True)
 ## end parse command line arguments
 args = parser.parse_args()
-
 
 def choose_component(DATA, subject_id, mode, component = None):
     # choose all components of a given subject    
@@ -29,7 +27,6 @@ with open('data/subject_list.csv', 'rb') as f:
     reader = csv.reader(f);
     subject_list = list(reader);
 
-
 DATA = h5py.File('data/468_alignments.h5', 'r')
 mode = 'aligned'
 
@@ -40,18 +37,18 @@ filename = 'data/100307/rfMRI_REST1_LR_Atlas_hp2000_clean.dtseries.nii'
 A = nb.load(filename)
 
 path_out = args.outprfx
+components = np.arange(0,10,1)
 
-component = 0
-DATA_all = []
-for subject_id in subject_list[0]:
+for subject_id in subject_list[0:100]:
     subject_id = ''.join(subject_id)
     print subject_id
-    subject_component = choose_component(DATA, subject_id, mode, component)
-    tmp = np.array(subject_component)
-    print tmp.shape
-    A.data[0, 0:len(tmp)] = tmp
-    A.data[0, len(tmp):np.shape(A.data)[1]] = np.NaN
-    A.data[1:, :] = np.NaN
+    for component in components:
+        subject_component = choose_component(DATA, subject_id, mode, component)
+        tmp = np.array(subject_component)
+        A.data[component, 0:len(tmp)] = tmp
+        A.data[component, len(tmp):np.shape(A.data)[1]] = np.NaN
+    
+    A.data[components[-1]:, :] = np.NaN
     
     B = path_out + subject_id + '_align.nii' 
     C = path_out + subject_id + '_align_smooth.nii'
@@ -64,9 +61,15 @@ for subject_id in subject_list[0]:
         print "Error with wb_command"
         break
 
-    suffix = '_smooth_59412_0'+ str(component) + '.h5'
+    suffix = '_smooth_59412.h5'
     D = nb.load(C)
-    D = np.array(D.data[0, 0:len(tmp)])    
+    
+    smoothed_components = []
+    for component in components:
+        smoothed_component = np.array(D.data[component, 0:len(tmp)])    
+        smoothed_components.append(smoothed_component)
+    smoothed_components = np.array(smoothed_components).T    
+
     h = h5py.File(path_out + subject_id + suffix, 'w')
-    h.create_dataset('smooth', data=D)
+    h.create_dataset('smooth', data = smoothed_components)
     h.close()

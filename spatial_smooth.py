@@ -48,7 +48,7 @@ for subject_id in subject_list[0:100]:
         A.data[component, 0:len(tmp)] = tmp
         A.data[component, len(tmp):np.shape(A.data)[1]] = np.NaN
     
-    A.data[components[-1]:, :] = np.NaN
+    A.data[components[-1]+1:, :] = np.NaN
     
     B = path_out + subject_id + '_align.nii' 
     C = path_out + subject_id + '_align_smooth.nii'

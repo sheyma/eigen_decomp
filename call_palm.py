@@ -5,8 +5,8 @@ import csv
 import pandas as pd
 import numpy as np
 import glob
+import os
 from subprocess import call
-
 
 def choose_component(DATA, subject_id, mode, component = None):
     # choose all components of a given subject    
@@ -73,6 +73,16 @@ def get_csv(DATA, subject_list, mode, components, n, n_LH, n_RH, vertices,
     return
 
 
+def callPalm(input_file, surface_file, iteration, design_matrix,
+             contrast_matrix, output_file):
+                 
+    retcode = call(["palm", "-i", input_file, "-s", surface_file,
+                    "-n", str(iteration), "-approx",  "tail",  
+                    "-o", output_file, "-zstat", "-fdr", 
+                    "-d", design_matrix,  "-t",  contrast_matrix, 
+                    "-corrcon", "-corrmod", "-T", "-tfce2D"])
+    return retcode 
+
 surface_data = 'data/data_surface.h5'
 surface_type = 'midthickness'
 
@@ -87,7 +97,8 @@ n_RH, vertices_RH, triangles_RH = get_surface(surface_data,
                                               hemisphere, surface_type)
 
 path_in = '/nobackup/kocher1/bayrak/tmp/'
-path_out = '/nobackup/kocher1/bayrak/palm_data/'
+path_out = '/nobackup/kocher1/bayrak/palm_results/'
+path = '/nobackup/kocher1/bayrak/palm_data/'
 
 DATA = h5py.File(path_in + '468_smoothing_new.h5', 'r')
 mode = 'smooth'
@@ -101,26 +112,23 @@ with open('data/subject_list.csv', 'rb') as f:
 #get_csv(DATA, subject_list, mode, components, n, n_LH, n_RH, vertices,
 #            vertices_LH, vertices_RH, path_out)
 
+              
+left_list = glob.glob(path + '*left*csv')
+right_list = glob.glob(path + '*right*csv')
 
-input_file = '/nobackup/kocher1/bayrak/palm_data/Sdata_32492_left_05.csv'
-surface_file = '/nobackup/kocher1/bayrak/palm_data/lh.pial'
-iteration = 10
-output_file = '/nobackup/kocher1/bayrak/palm_results/TMP'
-design_matrix = '/nobackup/kocher1/bayrak/palm_data/design_matrix.csv'
-contrast_matrix = '/nobackup/kocher1/bayrak/palm_data/contrast.csv'
+surface_file = path + 'lh.pial'
+design_matrix = path + 'design_matrix.csv'
+contrast_matrix = path + 'contrast.csv'
+iteration = 5
 
+for input_file in left_list:
+    
+    output_file = path_out + os.path.basename(input_file)[12:-4]
+    return_code = callPalm(input_file, surface_file, iteration, design_matrix,
+                           contrast_matrix, output_file)
 
-retcode = call(["palm", "-i", input_file, "-s", surface_file,
-                "-n", str(iteration), "-approx",  "tail",  
-                "-o", output_file, "-zstat", "-fdr", 
-                "-d", design_matrix,  "-t",  contrast_matrix, 
-                "-corrcon", "-corrmod", "-T", "-tfce2D"])
-
-
-
-#left_list = glob.glob(path_out + '*left*csv')
-#right_list = glob.glob(path_out + '*right*csv')
-
+    print input_file
+    print "return code" , return_code
 
 #sys.path.append(os.path.expanduser('/home/raid/bayrak/src/PALM'))
 #os.system('./palm')

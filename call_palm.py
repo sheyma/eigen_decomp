@@ -106,14 +106,14 @@ input_file = '/nobackup/kocher1/bayrak/palm_data/Sdata_32492_left_05.csv'
 surface_file = '/nobackup/kocher1/bayrak/palm_data/lh.pial'
 iteration = 10
 output_file = '/nobackup/kocher1/bayrak/palm_results/TMP'
-design_matrix = '/nobackup/kocher1/bayrak/design_matrix.csv'
-contrast_matrix = '/nobackup/kocher1/bayrak/contrast.csv'
+design_matrix = '/nobackup/kocher1/bayrak/palm_data/design_matrix.csv'
+contrast_matrix = '/nobackup/kocher1/bayrak/palm_data/contrast.csv'
 
 
 retcode = call(["palm", "-i", input_file, "-s", surface_file,
-                "-n", iteration, "-approx",  "tail",  
+                "-n", str(iteration), "-approx",  "tail",  
                 "-o", output_file, "-zstat", "-fdr", 
-                "-d", design_matrix,  "-t",  contrast_matrix,
+                "-d", design_matrix,  "-t",  contrast_matrix, 
                 "-corrcon", "-corrmod", "-T", "-tfce2D"])
 
 

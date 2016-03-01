@@ -28,6 +28,10 @@ def over_subjects(DATA, subject_list, mode, component):
     
     return np.array(DATA_all)    
 
+def save_csv(name, data):
+    tmp = pd.DataFrame(data)
+    return tmp.to_csv(name, header=False, index=False)
+
 
 def get_csv(DATA, subject_list, mode, components, surface_data, path_out):
     
@@ -60,17 +64,14 @@ def get_csv(DATA, subject_list, mode, components, surface_data, path_out):
         data_RH[:, n_RH] = DATA_RH
         
         if component != 9:
-            name_LH = path_out+'Sdata_32492_left_0'+str(component+1)+'.csv'    
-            name_RH = path_out+'Sdata_32492_right_0'+str(component+1)+'.csv'
+            name_LH = path_out+'A_left_0'+str(component+1)+'.csv'    
+            name_RH = path_out+'A_left_0'+str(component+1)+'.csv'
         else:
-            name_LH = path_out+'Sdata_32492_left_'+str(component+1)+'.csv'    
-            name_RH = path_out+'Sdata_32492_right_'+str(component+1)+'.csv'
+            name_LH = path_out+'A_left_'+str(component+1)+'.csv'    
+            name_RH = path_out+'A_right_'+str(component+1)+'.csv'
             
-        tmp_LH = pd.DataFrame(data_LH)
-        tmp_LH.to_csv(name_LH, header=False, index=False)
-        
-        tmp_RH = pd.DataFrame(data_RH)
-        tmp_RH.to_csv(name_RH, header=False, index=False)
+        save_csv(name_LH, data_LH)
+        save_csv(name_RH, data_RH)
 
     return
 
@@ -84,10 +85,9 @@ def callPalm(input_file, surface_file, iteration, design_matrix,
                     "-d", design_matrix,  "-t",  contrast_matrix, 
                     "-corrcon", "-corrmod", "-T", "-tfce2D"])
     return retcode 
-
+    
 surface_data = 'data/data_surface.h5'
 surface_type = 'midthickness'
-
 
 path_in = '/nobackup/kocher1/bayrak/tmp/'
 path_out = '/nobackup/kocher1/bayrak/palm_results/'
@@ -102,9 +102,8 @@ with open('data/subject_list.csv', 'rb') as f:
     reader = csv.reader(f);
     subject_list = list(reader);
 
-#get_csv(DATA, subject_list, mode, components, n, n_LH, n_RH, vertices,
-#            vertices_LH, vertices_RH, path_out)
 
+get_csv(DATA, subject_list, mode, components, surface_data, path)
               
 left_list = glob.glob(path + '*left*csv')
 right_list = glob.glob(path + '*right*csv')
@@ -114,14 +113,14 @@ design_matrix = path + 'design_matrix.csv'
 contrast_matrix = path + 'contrast.csv'
 iteration = 5
 
-for input_file in left_list:
-    
-    output_file = path_out + os.path.basename(input_file)[12:-4]
-    return_code = callPalm(input_file, surface_file, iteration, design_matrix,
-                           contrast_matrix, output_file)
-
-    print input_file
-    print "return code" , return_code
+#for input_file in left_list:
+#    
+#    output_file = path_out + os.path.basename(input_file)[12:-4]
+#    return_code = callPalm(input_file, surface_file, iteration, design_matrix,
+#                           contrast_matrix, output_file)
+#
+#    print input_file
+#    print "return code" , return_code
 
 #sys.path.append(os.path.expanduser('/home/raid/bayrak/src/PALM'))
 #os.system('./palm')

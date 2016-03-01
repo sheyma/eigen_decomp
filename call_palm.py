@@ -5,6 +5,8 @@ import csv
 import pandas as pd
 import numpy as np
 import glob
+from subprocess import call
+
 
 def choose_component(DATA, subject_id, mode, component = None):
     # choose all components of a given subject    
@@ -39,7 +41,8 @@ def get_csv(DATA, subject_list, mode, components, n, n_LH, n_RH, vertices,
         
         for subject_id in subject_list:
             subject_id = ''.join(subject_id)
-            subject_component = choose_component(DATA, subject_id, mode, component)
+            subject_component = choose_component(DATA, subject_id, 
+                                                 mode, component)
             DATA_all.append(subject_component)
         
         DATA_all = np.array(DATA_all)
@@ -55,11 +58,11 @@ def get_csv(DATA, subject_list, mode, components, n, n_LH, n_RH, vertices,
         data_RH[:, n_RH] = DATA_RH
         
         if component != 9:
-            name_LH = path_out + 'Sdata_32492_left_0' + str(component+1) + '.csv'    
-            name_RH = path_out + 'Sdata_32492_right_0' + str(component+1) + '.csv'
+            name_LH = path_out+'Sdata_32492_left_0'+str(component+1)+'.csv'    
+            name_RH = path_out+'Sdata_32492_right_0'+str(component+1)+'.csv'
         else:
-            name_LH = path_out + 'Sdata_32492_left_' + str(component+1) + '.csv'    
-            name_RH = path_out + 'Sdata_32492_right_' + str(component+1) + '.csv'
+            name_LH = path_out+'Sdata_32492_left_'+str(component+1)+'.csv'    
+            name_RH = path_out+'Sdata_32492_right_'+str(component+1)+'.csv'
             
         tmp_LH = pd.DataFrame(data_LH)
         tmp_LH.to_csv(name_LH, header=False, index=False)
@@ -99,14 +102,25 @@ with open('data/subject_list.csv', 'rb') as f:
 #            vertices_LH, vertices_RH, path_out)
 
 
+input_file = '/nobackup/kocher1/bayrak/palm_data/Sdata_32492_left_05.csv'
+surface_file = '/nobackup/kocher1/bayrak/palm_data/lh.pial'
+iteration = 10
+output_file = '/nobackup/kocher1/bayrak/palm_results/TMP'
+design_matrix = '/nobackup/kocher1/bayrak/design_matrix.csv'
+contrast_matrix = '/nobackup/kocher1/bayrak/contrast.csv'
+
+
+retcode = call(["palm", "-i", input_file, "-s", surface_file,
+                "-n", iteration, "-approx",  "tail",  
+                "-o", output_file, "-zstat", "-fdr", 
+                "-d", design_matrix,  "-t",  contrast_matrix,
+                "-corrcon", "-corrmod", "-T", "-tfce2D"])
+
+
+
 #left_list = glob.glob(path_out + '*left*csv')
 #right_list = glob.glob(path_out + '*right*csv')
 
-#tmp_read_LH = pd.read_csv(name_LH, header=None)
-#tmp_read_LH = np.array(tmp_read_LH)
-
-tmp_name = '/nobackup/kocher1/bayrak/palm_data/Sdata_32492_left_05.csv' 
-tmp_surf = '/nobackup/kocher1/bayrak/palm_data/lh.pial'
 
 #sys.path.append(os.path.expanduser('/home/raid/bayrak/src/PALM'))
 #os.system('./palm')

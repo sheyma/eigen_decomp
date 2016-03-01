@@ -17,35 +17,37 @@ def choose_component(DATA, subject_id, mode, component = None):
         A = A[:, component]
     return A
 
-def get_surface(surface_data, hemisphere, surface_type):
-    """
-    surface_data = hdf5 formatted surface data
-    hemisphere = 'LH', 'RH', or 'full'
-    surface_type = 'midthickness', 'inflated', or 'very_inflated'
-    """
-    tmp = h5py.File(surface_data, 'r')
-    indices = np.array( tmp[hemisphere][surface_type]['indices'] )
-    vertices = np.array( tmp[hemisphere][surface_type]['vertices'] )    
-    triangles = np.array( tmp[hemisphere][surface_type]['triangles'])
+def over_subjects(DATA, subject_list, mode, component):
+   
+    DATA_all = []
+    for subject_id in subject_list:
+        subject_id = ''.join(subject_id)
+        subject_component = choose_component(DATA, subject_id, 
+                                             mode, component)
+        DATA_all.append(subject_component)
     
-    return indices, vertices, triangles
+    return np.array(DATA_all)    
 
 
-def get_csv(DATA, subject_list, mode, components, n, n_LH, n_RH, vertices,
-            vertices_LH, vertices_RH, path_out):
-                
+def get_csv(DATA, subject_list, mode, components, surface_data, path_out):
+    
+    tmp = h5py.File(surface_data, 'r')    
+    surface_type = 'midthickness'
+    
+    n =  np.array(tmp['full'][surface_type]['indices'])   
+    vertices = np.array(tmp['full'][surface_type]['vertices'])
+
+    n_LH = np.array(tmp['LH'][surface_type]['indices'])
+    vertices_LH = np.array( tmp['LH'][surface_type]['vertices'])
+
+    n_RH = np.array(tmp['RH'][surface_type]['indices'])      
+    vertices_RH = np.array(tmp['RH'][surface_type]['vertices'])        
+        
     for component in components:
         print "loop for component ", component + 1
-    
-        DATA_all = []
-        
-        for subject_id in subject_list:
-            subject_id = ''.join(subject_id)
-            subject_component = choose_component(DATA, subject_id, 
-                                                 mode, component)
-            DATA_all.append(subject_component)
-        
-        DATA_all = np.array(DATA_all)
+
+        DATA_all = over_subjects(DATA, subject_list, mode, component)    
+
         DATA_LH = DATA_all[:, 0:len(n_LH)]
         DATA_RH = DATA_all[:, len(n_LH):len(n_RH)+len(n_LH)]
         
@@ -86,15 +88,6 @@ def callPalm(input_file, surface_file, iteration, design_matrix,
 surface_data = 'data/data_surface.h5'
 surface_type = 'midthickness'
 
-hemisphere = 'full'
-n, vertices, triangles = get_surface(surface_data, 
-                                     hemisphere, surface_type)
-hemisphere = 'LH'
-n_LH, vertices_LH, triangles_LH = get_surface(surface_data, 
-                                              hemisphere, surface_type)
-hemisphere = 'RH'
-n_RH, vertices_RH, triangles_RH = get_surface(surface_data, 
-                                              hemisphere, surface_type)
 
 path_in = '/nobackup/kocher1/bayrak/tmp/'
 path_out = '/nobackup/kocher1/bayrak/palm_results/'

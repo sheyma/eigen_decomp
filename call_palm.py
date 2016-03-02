@@ -7,6 +7,11 @@ import numpy as np
 import glob
 import os
 from subprocess import call
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--hem', default='LH', choices=['full','LH','RH'])
+args = parser.parse_args()
 
 def choose_component(DATA, subject_id, mode, component = None):
     # choose all components of a given subject    
@@ -97,26 +102,27 @@ with open('data/subject_list.csv', 'rb') as f:
     reader = csv.reader(f);
     subject_list = list(reader);
 
-#hem = 'LH'
-#get_csv(DATA, subject_list, mode, components, surf_data, surf_type, hem, path)
-#hem = 'RH'
-#get_csv(DATA, subject_list, mode, components, surf_data, surf_type, hem ,path)
 
-left_list = glob.glob(path + '*LH*csv')
-right_list = glob.glob(path + '*RH*csv')
+hem=args.hem
+get_csv(DATA, subject_list, mode, components, surf_data, surf_type, hem ,path)
 
-surface_file_LH = path + 'lh.pial'
-surface_file_RH = path + 'rh.pial'
+if hem == 'LH':    
+    hem_list = glob.glob(path + '*LH*csv')
+    surface_file = path + 'lh.pial'
 
+if hem == 'RH':
+    hem_list = glob.glob(path + '*RH*csv')
+    surface_file =  path + 'rh.pial'    
+    
 design_matrix = path + 'design_matrix.csv'
 contrast_matrix = path + 'contrast.csv'
-iteration = 5
+iteration = 500
 
-for input_file in left_list:
+for input_file in hem_list:
+    print input_file    
     
     output_file = path_out + os.path.basename(input_file)[12:-4]
-    return_code = callPalm(input_file, surface_file_LH, iteration, 
+    return_code = callPalm(input_file, surface_file, iteration, 
                            design_matrix, contrast_matrix, output_file)
-
-    print input_file
+    
     print "return code" , return_code

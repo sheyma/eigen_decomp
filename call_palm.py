@@ -50,22 +50,24 @@ def get_csv(DATA, subject_list, mode, components, surf_data, surf_type,
         DATA_all = over_subjects(DATA, subject_list, mode, component)    
 
         if hem == 'LH':
-            DATA = DATA_all[:, 0:len(n)]
+            Data = DATA_all[:, 0:len(n)]
         elif hem == 'RH':
             n_LH, vertices_RH = mask_index(surf_data, surf_type, hem='LH')
-            DATA = DATA_all[:, len(n_LH): len(n_LH) + len(n)]
+            Data = DATA_all[:, len(n_LH): len(n_LH) + len(n)]
         elif hem == 'full':   
-            DATA = DATA_all        
+            Data = DATA_all        
         
         data  = np.zeros((len(subject_list), len(vertices)))
-        data[:,n] = DATA
+        
+	data[:,n] = Data
         
         if component != 9:
-            name = path_out+'A_'+ hem + '_0'+str(component+1)+'.csv'
+            name = path_out+'Sdata_32492_'+ hem + '_0'+str(component+1)+'.csv'
         else :
-            name = path_out+'A_'+ hem + '_0'+str(component+1)+'.csv'
+            name = path_out+'Sdata_32492_'+ hem + '_'+str(component+1)+'.csv'
         
-    return save_csv(name, data)
+	save_csv(name, data)
+    return        
 
 
 def callPalm(input_file, surface_file, iteration, design_matrix,
@@ -79,7 +81,6 @@ def callPalm(input_file, surface_file, iteration, design_matrix,
     return retcode 
     
 surf_data = 'data/data_surface.h5'
-surf_type = 'midthickness'
 
 path_in = '/nobackup/kocher1/bayrak/tmp/'
 path_out = '/nobackup/kocher1/bayrak/palm_results/'
@@ -96,8 +97,11 @@ with open('data/subject_list.csv', 'rb') as f:
 
 surf_type = 'midthickness'
 
-get_csv(DATA, subject_list, mode, components, surf_data, surf_type, hem='LH', path)
-get_csv(DATA, subject_list, mode, components, surf_data, surf_type, hem='RH', path)
+
+hem = 'LH'
+get_csv(DATA, subject_list, mode, components, surf_data, surf_type, hem, path)
+hem = 'RH'
+get_csv(DATA, subject_list, mode, components, surf_data, surf_type, hem ,path)
 
               
 left_list = glob.glob(path + '*left*csv')

@@ -33,50 +33,39 @@ def save_csv(name, data):
     return tmp.to_csv(name, header=False, index=False)
 
 
-def mask_index(surface_data, surface_type, hemisphere):
-    tmp = h5py.File(surface_data, 'r')
-    n = np.array(tmp[hemisphere][surface_type]['indices'])   
-    vertices = np.array(tmp[hemisphere][surface_type]['vertices'])    
+def mask_index(surf_data, surf_type, hem):
+    tmp = h5py.File(surf_data, 'r')
+    n = np.array(tmp[hem][surf_type]['indices'])   
+    vertices = np.array(tmp[hem][surf_type]['vertices'])    
     return n, vertices
 
-def get_csv(DATA, subject_list, mode, components, surface_data, hemisphere,
-            path_out):
-    
-    surface_type = 'midthickness'
-    
-    n, vertices = mask_index(surface_data, surface_type, hemisphere='full')
-    n_LH, vertices_LH = mask_index(surface_data, surface_type, hemisphere='LH')
-    n_RH, vertices_RH = mask_index(surface_data, surface_type, hemisphere='RH')
-        
+
+def get_csv(DATA, subject_list, mode, components, surf_data, surf_type,
+            hem, path_out):
+
+    n, vertices = mask_index(surf_data, surf_type, hem)
+      
     for component in components:
         print "loop for component ", component + 1
-
         DATA_all = over_subjects(DATA, subject_list, mode, component)    
 
-        if hemisphere == 'LH':
-            DATA_LH = DATA_all[:, 0:len(n_LH)]
-            data_LH = np.zeros((len(subject_list), len(vertices_LH)))
-            data_LH[:, n_LH] = DATA_LH
-            
-            if component != 9:
-                name_LH = path_out+'A_'+ hemisphere + '_0'+str(component+1)+'.csv'
-            else :
-                name_LH = path_out+'A_'+ hemisphere + '_0'+str(component+1)+'.csv'
-            
-        elif hemisphere == 'RH':
-            DATA_RH = DATA_all[:, len(n_LH):len(n_RH)+len(n_LH)]
-            data_RH = np.zeros((len(subject_list), len(vertices_RH)))
-            data_RH[:, n_RH] = DATA_RH
-            
-            if component != 9:
-                name_RH = path_out+'A_'+ hemisphere + '_0'+str(component+1)+'.csv'
-            else :
-                name_RH = path_out+'A_'+ hemisphere + '_0'+str(component+1)+'.csv'
-     
-        save_csv(name_LH, data_LH)
-        save_csv(name_RH, data_RH)
-
-    return
+        if hem == 'LH':
+            DATA = DATA_all[:, 0:len(n)]
+        elif hem == 'RH':
+            n_LH, vertices_RH = mask_index(surf_data, surf_type, hem='LH')
+            DATA = DATA_all[:, len(n_LH): len(n_LH) + len(n)]
+        elif hem == 'full':   
+            DATA = DATA_all        
+        
+        data  = np.zeros((len(subject_list), len(vertices)))
+        data[:,n] = DATA
+        
+        if component != 9:
+            name = path_out+'A_'+ hem + '_0'+str(component+1)+'.csv'
+        else :
+            name = path_out+'A_'+ hem + '_0'+str(component+1)+'.csv'
+        
+    return save_csv(name, data)
 
 
 def callPalm(input_file, surface_file, iteration, design_matrix,
@@ -89,8 +78,8 @@ def callPalm(input_file, surface_file, iteration, design_matrix,
                     "-corrcon", "-corrmod", "-T", "-tfce2D"])
     return retcode 
     
-surface_data = 'data/data_surface.h5'
-surface_type = 'midthickness'
+surf_data = 'data/data_surface.h5'
+surf_type = 'midthickness'
 
 path_in = '/nobackup/kocher1/bayrak/tmp/'
 path_out = '/nobackup/kocher1/bayrak/palm_results/'
@@ -105,8 +94,11 @@ with open('data/subject_list.csv', 'rb') as f:
     reader = csv.reader(f);
     subject_list = list(reader);
 
+surf_type = 'midthickness'
 
-get_csv(DATA, subject_list, mode, components, surface_data, path)
+get_csv(DATA, subject_list, mode, components, surf_data, surf_type, hem='LH', path)
+get_csv(DATA, subject_list, mode, components, surf_data, surf_type, hem='RH', path)
+
               
 left_list = glob.glob(path + '*left*csv')
 right_list = glob.glob(path + '*right*csv')

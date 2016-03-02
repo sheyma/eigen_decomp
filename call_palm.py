@@ -33,43 +33,46 @@ def save_csv(name, data):
     return tmp.to_csv(name, header=False, index=False)
 
 
-def get_csv(DATA, subject_list, mode, components, surface_data, path_out):
+def mask_index(surface_data, surface_type, hemisphere):
+    tmp = h5py.File(surface_data, 'r')
+    n = np.array(tmp[hemisphere][surface_type]['indices'])   
+    vertices = np.array(tmp[hemisphere][surface_type]['vertices'])    
+    return n, vertices
+
+def get_csv(DATA, subject_list, mode, components, surface_data, hemisphere,
+            path_out):
     
-    tmp = h5py.File(surface_data, 'r')    
     surface_type = 'midthickness'
     
-    n =  np.array(tmp['full'][surface_type]['indices'])   
-    vertices = np.array(tmp['full'][surface_type]['vertices'])
-
-    n_LH = np.array(tmp['LH'][surface_type]['indices'])
-    vertices_LH = np.array( tmp['LH'][surface_type]['vertices'])
-
-    n_RH = np.array(tmp['RH'][surface_type]['indices'])      
-    vertices_RH = np.array(tmp['RH'][surface_type]['vertices'])        
+    n, vertices = mask_index(surface_data, surface_type, hemisphere='full')
+    n_LH, vertices_LH = mask_index(surface_data, surface_type, hemisphere='LH')
+    n_RH, vertices_RH = mask_index(surface_data, surface_type, hemisphere='RH')
         
     for component in components:
         print "loop for component ", component + 1
 
         DATA_all = over_subjects(DATA, subject_list, mode, component)    
 
-        DATA_LH = DATA_all[:, 0:len(n_LH)]
-        DATA_RH = DATA_all[:, len(n_LH):len(n_RH)+len(n_LH)]
-        
-        data_all = np.zeros((len(subject_list), len(vertices)))
-        data_LH = np.zeros((len(subject_list), len(vertices_LH)))
-        data_RH = np.zeros((len(subject_list), len(vertices_RH)))
-        
-        data_all[:, n] = DATA_all
-        data_LH[:, n_LH] = DATA_LH
-        data_RH[:, n_RH] = DATA_RH
-        
-        if component != 9:
-            name_LH = path_out+'A_left_0'+str(component+1)+'.csv'    
-            name_RH = path_out+'A_left_0'+str(component+1)+'.csv'
-        else:
-            name_LH = path_out+'A_left_'+str(component+1)+'.csv'    
-            name_RH = path_out+'A_right_'+str(component+1)+'.csv'
+        if hemisphere == 'LH':
+            DATA_LH = DATA_all[:, 0:len(n_LH)]
+            data_LH = np.zeros((len(subject_list), len(vertices_LH)))
+            data_LH[:, n_LH] = DATA_LH
             
+            if component != 9:
+                name_LH = path_out+'A_'+ hemisphere + '_0'+str(component+1)+'.csv'
+            else :
+                name_LH = path_out+'A_'+ hemisphere + '_0'+str(component+1)+'.csv'
+            
+        elif hemisphere == 'RH':
+            DATA_RH = DATA_all[:, len(n_LH):len(n_RH)+len(n_LH)]
+            data_RH = np.zeros((len(subject_list), len(vertices_RH)))
+            data_RH[:, n_RH] = DATA_RH
+            
+            if component != 9:
+                name_RH = path_out+'A_'+ hemisphere + '_0'+str(component+1)+'.csv'
+            else :
+                name_RH = path_out+'A_'+ hemisphere + '_0'+str(component+1)+'.csv'
+     
         save_csv(name_LH, data_LH)
         save_csv(name_RH, data_RH)
 

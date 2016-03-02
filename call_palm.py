@@ -80,11 +80,13 @@ def callPalm(input_file, surface_file, iteration, design_matrix,
                     "-corrcon", "-corrmod", "-T", "-tfce2D"])
     return retcode 
     
-surf_data = 'data/data_surface.h5'
 
 path_in = '/nobackup/kocher1/bayrak/tmp/'
 path_out = '/nobackup/kocher1/bayrak/palm_results/'
 path = '/nobackup/kocher1/bayrak/palm_data/'
+
+surf_data =  path_in + 'data_surface.h5'
+surf_type = 'midthickness'
 
 DATA = h5py.File(path_in + '468_smoothing_new.h5', 'r')
 mode = 'smooth'
@@ -95,37 +97,26 @@ with open('data/subject_list.csv', 'rb') as f:
     reader = csv.reader(f);
     subject_list = list(reader);
 
-surf_type = 'midthickness'
+#hem = 'LH'
+#get_csv(DATA, subject_list, mode, components, surf_data, surf_type, hem, path)
+#hem = 'RH'
+#get_csv(DATA, subject_list, mode, components, surf_data, surf_type, hem ,path)
 
+left_list = glob.glob(path + '*LH*csv')
+right_list = glob.glob(path + '*RH*csv')
 
-hem = 'LH'
-get_csv(DATA, subject_list, mode, components, surf_data, surf_type, hem, path)
-hem = 'RH'
-get_csv(DATA, subject_list, mode, components, surf_data, surf_type, hem ,path)
+surface_file_LH = path + 'lh.pial'
+surface_file_RH = path + 'rh.pial'
 
-              
-left_list = glob.glob(path + '*left*csv')
-right_list = glob.glob(path + '*right*csv')
-
-surface_file = path + 'lh.pial'
 design_matrix = path + 'design_matrix.csv'
 contrast_matrix = path + 'contrast.csv'
 iteration = 5
 
-#for input_file in left_list:
-#    
-#    output_file = path_out + os.path.basename(input_file)[12:-4]
-#    return_code = callPalm(input_file, surface_file, iteration, design_matrix,
-#                           contrast_matrix, output_file)
-#
-#    print input_file
-#    print "return code" , return_code
+for input_file in left_list:
+    
+    output_file = path_out + os.path.basename(input_file)[12:-4]
+    return_code = callPalm(input_file, surface_file_LH, iteration, 
+                           design_matrix, contrast_matrix, output_file)
 
-#sys.path.append(os.path.expanduser('/home/raid/bayrak/src/PALM'))
-#os.system('./palm')
-
-# load a certain component for each subject and save as .csv
-
-#./palm -i ~/tmp/data_lh.csv -s ~/devel/topography/data/lh.pial -d ~/tmp/design_matrix.csv -t test.con -n 1000 -o myresults/second_run  -zstat -fdr -logp
-#
-#path = '/home/raid/bayrak/tmp/'
+    print input_file
+    print "return code" , return_code

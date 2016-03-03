@@ -40,12 +40,19 @@ for subject in subjects_cool:
             break
     C.append( np.array(df.loc[subject]) )
 C = np.array(C)
-            
-df_new = pd.DataFrame(C)
-df_new.to_csv(path + 'design_matrix02.csv', sep=',', index=False, 
-              header=False)
-             
+
+Ones = np.ones(C.shape[0])
+for i in range(0, C.shape[1]):
+    D = []    
+    D.append(Ones)
+    D.append(C[:,i])
+    D = np.array(D).T    
+    df_new = pd.DataFrame(D)
+    df_new.to_csv(path + 'design_matrix_' + str(i+1) + '.csv',
+                  sep = ',', index=False, header=False) 
+    print i
+
 # construct a contrast matrix
-con = np.eye(C.shape[1], dtype='int')   
-np.savetxt(path + 'contrast_matrix02.csv', con, delimiter=',',
+con = np.eye(2, dtype='int')   
+np.savetxt(path + 'contrast_matrix.csv', con, delimiter=',',
            fmt='%d',)

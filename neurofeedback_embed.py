@@ -7,13 +7,13 @@ import embed
 # convert -v5 to -v7.3 on MATLAB like following:
 # load('Data_BT1.mat');
 # save('copyData_BT1.mat', '-v7.3')
-
-h = h5py.File('copyData_BT1.mat', 'r')
+path = '/home/sheyma/tmp/mano_data/'
+h = h5py.File(path + 'Data_BT1_v73.mat', 'r')
 
 list_UP = list(h.keys())
 
-h_new = h5py.File('Data_BT1_embed.h5', 'w')
-h_new = h5py.File('Data_BT1_embed.h5', 'r+')
+h_new = h5py.File(path + 'Data_BT1_embed.h5', 'w')
+h_new = h5py.File(path + 'Data_BT1_embed.h5', 'r+')
 
 for KEY in list_UP:
     L = h[KEY]
@@ -43,8 +43,8 @@ for KEY in list_UP:
         lambdas = np.array(lambdas)
         vectors = np.array(vectors)    
         grp.create_dataset('embedding', data=embeddings)
-        grp.create_dataset('lambdas', data=results['lambdas'])
-        grp.create_dataset('vectors', data=results['vectors'])
+        grp.create_dataset('lambdas', data=lambdas)
+        grp.create_dataset('vectors', data=vectors[:,:,1:tmp.shape[0]])
 
 h_new.close()
 

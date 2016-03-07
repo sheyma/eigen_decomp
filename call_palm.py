@@ -1,3 +1,4 @@
+#!/usr/bin/python
 # run PALM...
 
 import h5py
@@ -11,6 +12,11 @@ import argparse
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--hem', default='LH', choices=['full','LH','RH'])
+parser.add_argument('-i', '--input_file', type=str, required=True)
+parser.add_argument('-s', '--surface_file', type=str, required=True)
+parser.add_argument('-dm', '--design_matrix', type=str, required=True)
+parser.add_argument('-cm', '--contrast_matrix', type=str, required=True)
+parser.add_argument('-o', '--output_file', type=str, required=True)
 args = parser.parse_args()
 
 def choose_component(DATA, subject_id, mode, component = None):
@@ -104,25 +110,17 @@ with open('data/subject_list.csv', 'rb') as f:
 
 
 hem=args.hem
-get_csv(DATA, subject_list, mode, components, surf_data, surf_type, hem ,path)
+#get_csv(DATA, subject_list, mode, components, surf_data, surf_type, hem ,path)
 
-if hem == 'LH':    
-    hem_list = glob.glob(path + '*LH*csv')
-    surface_file = path + 'lh.pial'
+      
+design_matrix = args.design_matrix
+contrast_matrix = args.contrast_matrix
+input_file = args.input_file
+output_file = args.output_file
+surface_file = args.surface_file
 
-if hem == 'RH':
-    hem_list = glob.glob(path + '*RH*csv')
-    surface_file =  path + 'rh.pial'    
-    
-design_matrix = path + 'design_matrix.csv'
-contrast_matrix = path + 'contrast.csv'
 iteration = 500
 
-for input_file in hem_list:
-    print input_file    
-    
-    output_file = path_out + os.path.basename(input_file)[12:-4]
-    return_code = callPalm(input_file, surface_file, iteration, 
-                           design_matrix, contrast_matrix, output_file)
-    
-    print "return code" , return_code
+return_code = callPalm(input_file, surface_file, iteration, 
+                       design_matrix, contrast_matrix, output_file)
+

@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 from pandas.core.index import Int64Index
 
-path = '/home/sheyma/tmp/'
+path = '/nobackup/kocher1/bayrak/palm_data/'
 filename = 'sustained_attention_task.csv'
 
 # construct the DataFrame (df)
@@ -21,7 +21,7 @@ for col in df.columns: mask = mask | df[col].isnull()
 subjects_null = np.array(df[mask].index)
 
 # get full original subject list
-A = pd.read_csv(path + 'subject_list.csv',  index_col=False, header=None)
+A = pd.read_csv('/nobackup/kocher1/bayrak/data/subject_list.csv',  index_col=False, header=None)
 A = np.array(A)
 A = A.reshape(len(A))
 
@@ -45,7 +45,8 @@ Ones = np.ones(C.shape[0])
 for i in range(0, C.shape[1]):
     D = []    
     D.append(Ones)
-    D.append(C[:,i])
+    # subtract the mean of column 
+    D.append(C[:,i] - np.mean(C[:,i]))
     D = np.array(D).T    
     df_new = pd.DataFrame(D)
     df_new.to_csv(path + 'design_matrix_' + str(i+1) + '.csv',

@@ -2,6 +2,7 @@ import numpy as np
 import h5py
 from scipy import stats
 import pylab as plt
+import matplotlib.pylab as plt
 
 path = '/home/sheyma/tmp/mano_data/'
 f = h5py.File(path + 'Data_BT1_align.h5', 'r')
@@ -41,10 +42,25 @@ for KEY in list_UP:
         p_values = np.array(p_values)            
        
         group_LOW = group_UP.create_group(key)       
-        group_LOW.create_dataset('t_stats', data=t_stats)
+        group_LOW.create_datafset('t_stats', data=t_stats)
         group_LOW.create_dataset('p_values', data=p_values)
 
 f_new.close()    
+
+
+t_stats = []
+p_values = []
+G1 = np.array(f['MA_BT1']['alpha1'])[:,:,0]
+G2 = np.array(f['NMA_BT1']['alpha1'])[:,:,0]
+[t, p] = stats.ttest_ind(G1,G2,axis=0)
+t_stats.append(t)
+p_values.append(p)
+t_stats = np.array(t_stats)
+p_values = np.array(p_values)
+
+plt.figure();
+plt.plot(np.transpose(t_stats), 'o', label='t-stats')
+plt.plot(np.transpose(p_values), 'o', label='p_values')
 
 
 # plot x'th (aligned) component over subjects

@@ -1,11 +1,19 @@
 # plot statistics
 import pandas as pd
 import numpy as np
-import csv
 import h5py
+import sys, os
+import argparse
 #sys.path.append(os.path.expanduser('/u/sbayrak/devel/brainsurfacescripts'))
-sys.path.append(os.path.expanduser('/home/raid/bayrak/devel/brainsurfacescripts'))
+sys.path.append(os.path.expanduser('/home/sheyma/devel/brainsurfacescripts'))
 import plotting
+
+## parse command line arguments
+parser = argparse.ArgumentParser()
+parser.add_argument("filenames", type=str, nargs="+")
+args = parser.parse_args()
+
+filenames = np.array(args.filenames)
 
 def get_surface(surface_data, hemisphere, surface_type):
     """
@@ -20,14 +28,10 @@ def get_surface(surface_data, hemisphere, surface_type):
     
     return indices, vertices, triangles
 
-path_surface = '/nobackup/kocher1/bayrak/data/'
-path = '/nobackup/kocher1/bayrak/palm_results/'
-
-
-subject_list = []
-with open(path_surface + 'subject_list.csv', 'rb') as f:
-    reader = csv.reader(f);
-    subject_list = list(reader);
+#path_surface = '/nobackup/kocher1/bayrak/data/'
+#path = '/nobackup/kocher1/bayrak/palm_results/'
+path = '/home/sheyma/tmp/'
+path_surface = '/home/sheyma/tmp/'
 
 surface_data = path_surface + 'data_surface.h5'
 hemisphere = 'LH'
@@ -35,21 +39,16 @@ surface_type = 'midthickness'
 n, vertices, triangles = get_surface(surface_data, hemisphere, surface_type)
 
 
-DF = pd.read_csv(path + 'LH_01_dm_01_dpv_ztstat_c1.csv',
-                 index_col=False, header=None)
-A = np.array(DF).T
 
+for filename in filenames:
+    print filename
+    DF = pd.read_csv(filename,index_col=False, header=None)
+    A = np.array(DF).T
+    import matplotlib.pyplot as plt
+    plotting.plot_surf_stat_map(vertices, triangles, stat_map=A[:,0], cmap='jet', azim=180)
+    plt.title(filename)
+    plt.savefig(filename[:-4] + '.png')
+        
+#filename = '/home/sheyma/tmp/LH_01_dm_01_dpv_ztstat_c1.csv'
 
-
-# JULIA
-import matplotlib.pyplot as plt
-plotting.plot_surf_stat_map(vertices, triangles, stat_map=A[:,0], cmap='jet', azim=180)
-plt.colorbar()
-plt.show()
-
-plotting._get_plot_stat_map_params(stat_map_data=A[:,0])
-
-
-# SABINE
-#plotting.create_fig(data=A[0])
 

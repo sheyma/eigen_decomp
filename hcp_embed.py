@@ -44,11 +44,6 @@ for i in range(0, N):
                           N_first=args.N_first, N_cnt=args.N_cnt)
     # get upper triangular of corr matrix
     K = hcp_corr.corrcoef_upper(K)
-    # convert upper triangular into full corr matrix
-    N_orig = hcp_corr.N_original(K)
-    K.resize([N_orig, N_orig])
-    K = hcp_corr.upper_to_down(K)
-    print "corr matrix shape ", K.shape    
         
     if args.thr:    
         # get similarity matrix (Kernel matrix / Gram matrix)
@@ -57,7 +52,13 @@ for i in range(0, N):
     else:
         # set negative entries to 0
         K[np.where(K < 0)] = 0     
-	
+
+    # convert upper triangular into full corr matrix
+    N_orig = hcp_corr.N_original(K)
+    K.resize([N_orig, N_orig])
+    K = hcp_corr.upper_to_down(K)
+    print "corr matrix shape ", K.shape    
+ 
     # do embedding on similarity matrix or thresholded matrix
     print "do embedding..."
     embedding, result = embed.compute_diffusion_map(K, 

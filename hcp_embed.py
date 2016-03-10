@@ -21,7 +21,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--hem', default='LH', choices=['full','LH','RH'])
 parser.add_argument('--N_first', default=None, type=int)
 parser.add_argument('--N_cnt', default=None, type=int)
-parser.add_argument('--thr', action='store_true')
+parser.add_argument('--thr', action='store_false')
 # output prefix, e.g. /ptmp/sbayrak/corr_top10_out/top10_
 parser.add_argument('-o', '--outprfx', required=True)
 # the rest args are the subject path(s), e.g. /ptmp/sbayrak/hcp/*
@@ -54,12 +54,11 @@ for i in range(0, N):
         # get similarity matrix (Kernel matrix / Gram matrix)
         K +=1.0
         K /=2.0
-        print "thr is FALSE"
     else:
         # set negative entries to 0
         K[np.where(K < 0)] = 0     
-        
-    # do embedding on similarity matrix
+	
+    # do embedding on similarity matrix or thresholded matrix
     print "do embedding..."
     embedding, result = embed.compute_diffusion_map(K, 
                                                     n_components=10)

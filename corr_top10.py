@@ -1,11 +1,14 @@
-# -*- coding: utf-8 -*-
 """
-top 10 percent of correlation matrices
-
+get correlation matrix of HCP subjects
+find out top 10 percent value in corr. matrices
+binarize corr. matrix via threshold
+apply Satra's embedding algorithm
 """
 import numpy as np
 import numexpr as ne
-ne.set_num_threads(ne.ncores) # inclusive HyperThreading cores
+import sys, os
+sys.path.append(os.path.expanduser('~/devel/mapalign/mapalign'))
+import embed
 import argparse
 import hcp_corr
 import h5py
@@ -33,6 +36,7 @@ N = len(subject_list)
 
 for i in range(0, N):
     subject = subject_list[i]
+    subject_basename = os.path.basename(subject)
     print "do loop %d/%d, %s" % (i+1, N, subject)
     
     # load time-series matrix of the subject    
@@ -52,22 +56,26 @@ for i in range(0, N):
     K[np.where( K >= thr) ] = 1.0
     K[np.where( K < thr) ] = 0
     
-    # sum over all averaged matrices 
-    if i == 0:
-        SUM = K
-    else:
-        SUM = ne.evaluate('SUM + K')
+    # convert upper triangular into full corr matrix
+    N_orig = hcp_corr.N_original(K)
+    K.resize([N_orig, N_orig])
+    K = hcp_corr.upper_to_down(K)
+    print "corr matrix shape ", K.shape
 
-    del K	
+    embedding, result = embed.compute_diffusion_map(K, 
+                                                    n_components=10)
 
-print "SUM shape: ", SUM.shape
-print "loop done"
+    print "writing out embedding results..."
+    name = 'embeddings_' + args.hem + '_' + subject_basename + '.h5'
 
-# output prefix
-out_prfx=args.outprfx
+    outfile = os.path.join(args.outprfx, name)
+ 
+    print "outfile : ", outfile
+    h = h5py.File(outfile , 'w')
+    h.create_dataset('embedding', data=embedding)
+    h.create_dataset('lambdas', data=result['lambdas'])
+    h.create_dataset('vectors', data=result['vectors'])
+    h.close()
 
-# write-out upper triangular of corr- matrix in HDF5 format
-print "writing-out data in HDF5 format"
-h = h5py.File(out_prfx, 'w')
-h.create_dataset('sum', data=SUM)
-h.close()
+print "loop done!"
+

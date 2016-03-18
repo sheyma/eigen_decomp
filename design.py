@@ -41,6 +41,7 @@ for subject in subjects_cool:
     C.append( np.array(df.loc[subject]) )
 C = np.array(C)
 
+
 Ones = np.ones(C.shape[0])
 for i in range(0, C.shape[1]):
     D = []    
@@ -57,3 +58,18 @@ for i in range(0, C.shape[1]):
 con = np.eye(2, dtype='int')   
 np.savetxt(path + 'contrast_matrix.csv', con, delimiter=',',
            fmt='%d',)
+
+
+C = []
+subjects_cool = Int64Index(A)
+for subject in subjects_cool:   
+     for head in ['SCPT_SEN','SCPT_SPEC']:
+       # check if a subject has any NaN value
+        if pd.isnull(df.loc[subject, head]) == True:
+            break
+        C.append( np.array(df.loc[subject, head]) ) 
+    
+
+C = np.array(C)           
+        print np.array(df.loc[subject, head])
+

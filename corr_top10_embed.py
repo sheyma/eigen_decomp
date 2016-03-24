@@ -4,7 +4,7 @@ import numpy as np
 import numexpr as ne
 ne.set_num_threads(ne.ncores) # inclusive HyperThreading cores
 import argparse
-
+import hcp_corr
 sys.path.append(os.path.expanduser('~/devel/mapalign/mapalign'))
 
 import embed
@@ -14,7 +14,7 @@ import h5py
 ## parse command line arguments
 parser = argparse.ArgumentParser()
 # total number of HCP subjects ... for division
-parser.add_argument('--cntsubjects', default=476, type=int)
+parser.add_argument('--cntsubjects', default=468, type=int)
 # output prefix, e.g. /ptmp/sbayrak/corr_top10_out/top10_
 parser.add_argument('-o', '--outprfx', required=True)
 # the rest args are the subject path(s), e.g. /ptmp/sbayrak/hcp/*
@@ -45,20 +45,20 @@ N = args.cntsubjects
 # get mean correlation 
 SUM = ne.evaluate('SUM / N')  
 
+N_orig = hcp_corr.N_original(SUM)
+SUM.resize([N_orig, N_orig])
+SUM = hcp_corr.upper_to_down(SUM)
+print "corr matrix shape ", SUM.shape    
+
+
 #print "writing-out GROUP-LEVEL data in HDF5 format"
 #h = h5py.File(args.outprfx, 'w')
 #h.create_dataset('sum', data=SUM)
 #h.close()
-print "group-level matrix shape: ", SUM.shape
+#print "group-level matrix shape: ", SUM.shape
 
-# set NaN entries to 0
-SUM[np.where(np.isnan(SUM) == True)] = 0
-# ignore zero entries?
-ind = np.where(np.sum(SUM,axis=1) != 1)
-
-print "do embed for corr matrix "
-
-embedding, result = embed.compute_diffusion_map(SUM[ind].T[ind].T,
+print "do embedding..."
+embedding, result = embed.compute_diffusion_map(SUM,
                                                 n_components=10)
 
 print result['lambdas']
@@ -70,6 +70,7 @@ h.create_dataset('embedding', data=embedding)
 h.create_dataset('lambdas', data=result['lambdas'])
 h.create_dataset('vectors', data=result['vectors'])
 h.close()
+
 
 
 

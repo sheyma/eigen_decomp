@@ -61,8 +61,14 @@ for i in range(0, N):
  
     # do embedding on similarity matrix or thresholded matrix
     print "do embedding..."
-    embedding, result = embed.compute_diffusion_map(K, 
-                                                    n_components=10)
+
+    try:	
+         embedding, result = embed.compute_diffusion_map(K, 
+                                                         n_components=10,
+							 skip_checks=True)
+    except:
+	print "AAAAAAAAAAAAAAAA", subject_basename
+        continue
 
     # write out embedding components, eigenvalues and eigenvectors
     print "writing out embedding results..."

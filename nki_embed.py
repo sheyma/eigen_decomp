@@ -11,8 +11,6 @@ import h5py
 sys.path.append(os.path.expanduser('~/devel/mapalign/mapalign'))
 import embed
 import argparse
-from sklearn.manifold.spectral_embedding_ import _graph_is_connected
-
 
 # begin parse command line arguments
 parser = argparse.ArgumentParser()
@@ -40,12 +38,12 @@ for i in range(0, N):
 
     if args.abs:
         K[np.where(K<0)] = 0 
-        K[np.where(K==0)] = 1e-24
         
-    #else:
-    #    K[np.where(K < 0)] = 0     
-
-
+    else:
+        K = np.abs(K)
+     
+    K[np.where(K==0)] = 1e-24    
+    
     try:	
     	embedding, result = embed.compute_diffusion_map(K, 
         		                                n_components=10,

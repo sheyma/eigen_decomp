@@ -7,6 +7,12 @@ import embed
 # convert -v5 to -v7.3 on MATLAB like following:
 # load('Data_BT1.mat');
 # save('copyData_BT1.mat', '-v7.3')
+## OR
+# $ mat2h5.sh NMA_BT1.mat NMA_BT1_v73.mat
+# concatenate *h5 files into 1 file
+# $ h5copy -i NMA_SM_v73.mat  -o Data_SM_v73.mat -s '/' -d '/NMA_SM'
+# $ h5copy -i MA_SM_v73.mat  -o Data_SM_v73.mat -s '/' -d '/MA_SM'
+
 path = '/home/sheyma/tmp/mano_data/'
 h = h5py.File(path + 'Data_BT1_v73.mat', 'r')
 

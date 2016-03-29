@@ -13,8 +13,8 @@ import embed
 # $ h5copy -i NMA_SM_v73.mat  -o Data_SM_v73.mat -s '/' -d '/NMA_SM'
 # $ h5copy -i MA_SM_v73.mat  -o Data_SM_v73.mat -s '/' -d '/MA_SM'
 
-path = '/home/sheyma/tmp/mano_data/'
-h = h5py.File(path + 'Data_BT1_v73.mat', 'r')
+path = '/nobackup/kocher1/bayrak/math_anxiety/'
+h = h5py.File(path + 'Data_BT1.h5', 'r')
 
 list_UP = list(h.keys())
 

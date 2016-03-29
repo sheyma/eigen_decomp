@@ -4,7 +4,8 @@ import sys, os
 sys.path.append(os.path.expanduser('~/devel/mapalign/mapalign'))
 import align
 
-path = '/home/sheyma/tmp/mano_data/'
+path = '/nobackup/kocher1/bayrak/math_anxiety/'
+#path = '/home/sheyma/tmp/mano_data/'
 k = h5py.File(path + 'Data_BT1_embed.h5', 'r')
 
 k_new = h5py.File(path + 'Data_BT1_align.h5', 'w')

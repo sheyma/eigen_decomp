@@ -4,7 +4,7 @@ from scipy import stats
 import mne
 import pylab as plt
 
-path = '/home/sheyma/tmp/mano_data/'
+path = '/nobackup/kocher1/bayrak/math_anxiety/'
 f = h5py.File(path + 'Data_BT1_align.h5', 'r')
 
 list_UP = list(f.keys())
@@ -22,8 +22,8 @@ if list_lower != list_check:
 for key in list_lower:
     # e.g. key = 'alpha1'
     
-    f_tmp = h5py.File(path + 'ttest_' + key + '.h5', 'w')
-    f_tmp = h5py.File(path + 'ttest_' + key + '.h5', 'r+')
+    f_tmp = h5py.File(path + 'ttest_BT1_' + key + '.h5', 'w')
+    f_tmp = h5py.File(path + 'ttest_BT1_' + key + '.h5', 'r+')
 
     
     comps =  G_MA[key].shape[2]   
@@ -34,7 +34,7 @@ for key in list_lower:
         G2 = np.array(G_NMA[key])[:,:, comp]
         print G1.shape, G2.shape
         # ttest of two independent samples        
-        [t, p] = stats.ttest_ind(G1,G2,axis=0)
+        [t, p] = stats.ttest_ind(G1, G2, axis=0)
         # FDR correction on p-values
         alpha = 0.05
         reject, p_fdr = mne.stats.fdr_correction(p, alpha, method='indep')
@@ -59,23 +59,23 @@ for key in list_lower:
         
     f_tmp.close()
     
-# plot x'th (aligned) component over subjects
-D = np.array(f['MA_BT1']['alpha1'])
-x = 0
-D = D[:,:, x]
-X, Y=np.meshgrid(range(D.shape[0]+1),range(D.shape[1]+1))
-im = plt.pcolormesh(Y,X,D.transpose(), cmap='jet')
-plt.colorbar(im, orientation='vertical')
-plt.show()
-
-# plot t_stats and p_values of x'th component over subjects
-A = h5py.File(path + 'ttest_gamma.h5', 'r')
-AT = np.array(A['01']['t'])
-AP = np.array(A['01']['p'])
-AT_fdr = np.array(A['01']['t_fdr'])
-
-plt.figure() 
-plt.plot(AP, 'or', label='p-values')    
-plt.plot(AT_fdr, 'oy', label='t_signif')    
-plt.legend()
-plt.show()
+## plot x'th (aligned) component over subjects
+#D = np.array(f['MA_BT1']['alpha1'])
+#x = 0
+#D = D[:,:, x]
+#X, Y=np.meshgrid(range(D.shape[0]+1),range(D.shape[1]+1))
+#im = plt.pcolormesh(Y,X,D.transpose(), cmap='jet')
+#plt.colorbar(im, orientation='vertical')
+#plt.show()
+#
+## plot t_stats and p_values of x'th component over subjects
+#A = h5py.File(path + 'ttest_gamma.h5', 'r')
+#AT = np.array(A['01']['t'])
+#AP = np.array(A['01']['p'])
+#AT_fdr = np.array(A['01']['t_fdr'])
+#
+#plt.figure() 
+#plt.plot(AP, 'or', label='p-values')    
+#plt.plot(AT_fdr, 'oy', label='t_signif')    
+#plt.legend()
+#plt.show()

@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 from pandas.core.index import Int64Index
 
+#path = '/home/sheyma/tmp/'
 path = '/nobackup/kocher1/bayrak/palm_data/'
 filename = 'sustained_attention_task.csv'
 
@@ -21,6 +22,7 @@ for col in df.columns: mask = mask | df[col].isnull()
 subjects_null = np.array(df[mask].index)
 
 # get target subject indices
+#path01 = '/home/sheyma/tmp/'
 path01 = '/nobackup/kocher1/bayrak/data/'
 A = pd.read_csv(path01 + 'subject_list.csv',
                 index_col=False, header=None)
@@ -33,6 +35,7 @@ for j in subjects_null:
         if int(i) == int(j):
             print i
 
+# get all columns...
 C = []
 subjects_cool = Int64Index(A)
 # check if a subject has any NaN entry
@@ -67,9 +70,47 @@ if not pd.isnull(df.loc[subjects_cool, heads_cool]).any().any():
     C = df.loc[subjects_cool, heads_cool]  
 C = np.array(C)           
 
+# demeans 
 for i in range(0, C.shape[1]):
     C[:,i] = C[:,i] - np.mean(C[:,i])
 
-df_new = pd.DataFrame(C)
-df_new.to_csv(path + 'design_matrix_SCPTs.csv', sep=',', index=False,
+# add ones column
+Ones = np.ones(C.shape[0])
+Ones = Ones.reshape(len(Ones), 1)
+
+hf = pd.read_csv(path + 'unrestricted_danielmargulies_9_18_2015_13_57_26.csv', 
+                 index_col = 'Subject', header = 0)
+
+Subjects = hf.index
+Heads = list(hf.columns.values)
+Dtype_ = hf.dtypes
+
+# age header
+Heads[2]
+if not pd.isnull(hf.loc[subjects_cool, Heads[2]]).any().any():
+    Age = hf.loc[subjects_cool, Heads[2]]
+Age = np.array(Age)
+Age[np.where( Age == '22-25')] = (22 + 25) / float(2)
+Age[np.where( Age == '26-30')] = (26 + 30) / float(2)
+Age[np.where( Age == '31-35')] = (31 + 35) / float(2)
+Age[np.where( Age == '36+')] = 40
+Age = np.asfarray(Age, dtype='float64')
+Age = Age - np.mean(Age)
+Age = Age.reshape(len(Age), 1)
+
+# gender header
+Heads[1]
+if not pd.isnull(hf.loc[subjects_cool, Heads[1]]).any().any():
+    Gender = hf.loc[subjects_cool, Heads[1]]
+Gender = np.array(Gender)
+Gender[np.where( Gender == 'M')] = 0
+Gender[np.where( Gender == 'F')] = 1
+Gender = np.asfarray(Gender, dtype='float64')
+Gender = Gender - np.mean(Gender)
+Gender = Gender.reshape(len(Gender))
+
+D = np.concatenate((Ones, C, Age, Gender), axis=1)
+
+df_new = pd.DataFrame(D)
+df_new.to_csv(path + 'DESIGN_MATRIX.csv', sep=',', index=False,
               header=False)

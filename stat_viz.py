@@ -1,7 +1,12 @@
 import numpy as np
 import h5py
+import sys
+import os
 sys.path.append(os.path.expanduser('/home/raid/bayrak/devel/brainsurfacescripts'))
-
+import plotting
+import csv
+import re
+import matplotlib.pyplot as plt
 
 def get_surface(surface_data, hemisphere, surface_type):
     """
@@ -25,118 +30,95 @@ n_lh, vertices_lh, triangles_lh = get_surface(surface_data, 'LH', surface_type)
 n_rh, vertices_rh, triangles_rh = get_surface(surface_data, 'RH', surface_type)
 
 path = '/nobackup/kocher1/bayrak/palm_results_SCPTs_NEW/'
+fig_path = '/nobackup/kocher1/bayrak/palm_figures_SCPTs_NEW/'
 
-import glob
+results_list = []
+with open(path + 'results_unique.csv', 'rb') as f:
+    reader = csv.reader(f);
+    results_list = list(reader);
 
-cont = glob.glob(path + '/LH_01_dpv_ztstat_cfdrp_c3.csv') # LH_01*p_c1.csv')
-anti = glob.glob(path + '/LH_01_dpv_ztstat_cfdrp_c4.csv') #LH_01*p_c2.csv')
+fig_number = 1;
+for result in results_list:
+    result =  str(result)
+    
+    name_tmp = result[2:-2]
+    name_tmp = re.sub('01', '04', name_tmp)    
+    
+    nameL1 = re.sub('c1', 'c1', name_tmp)
+    nameL2 = re.sub('c1', 'c2', nameL1)
+    nameR1 = re.sub('LH', 'RH', nameL1)
+    nameR2 = re.sub('LH', 'RH', nameL2)    
+    
+    fig_name = re.sub("LH_", "", nameL1)
+    
+    print nameL1
+    print nameL2
+    print nameR1
+    print nameR2
+    
+    #    nameL1 = 'LH_01_dpv_ztstat_cfdrp_c3.csv'
 
-CONT = glob.glob(path + '/RH_01_dpv_ztstat_cfdrp_c3.csv') # LH_01*p_c1.csv')
-ANTI = glob.glob(path + '/RH_01_dpv_ztstat_cfdrp_c4.csv') #LH_01*p_c2.csv')
+    L1 = np.loadtxt(os.path.join(path, nameL1), delimiter = ',') 
+    L2 = np.loadtxt(os.path.join(path, nameL2), delimiter = ',')
+    R1 = np.loadtxt(os.path.join(path, nameR1), delimiter = ',')
+    R2 = np.loadtxt(os.path.join(path, nameR2), delimiter = ',')
 
 
-list_cont = []; list_CONT = [];
-list_anti = []; list_ANTI = [];
-
-for i in range(0, len(cont)):
-    for j in range(0, len(anti)):
-        if cont[i][:-5] == anti[j][:-5]:        
-            for k in range(0, len(CONT)):
-                if CONT[k][49:-5] == cont[i][49:-5]:
-                    for l in range(0, len(ANTI)):
-                        if cont[i][49:-5] == ANTI[l][49:-5]:
-            
-                            print cont[i]
-                            print anti[j]
-                            print CONT[k]
-                            print ANTI[l]    
-
-                            list_cont.append(cont[i])
-                            list_anti.append(anti[j])
-                            list_CONT.append(CONT[k])
-                            list_ANTI.append(ANTI[l])
-            
-threshold = True
-o = 2
-for i in range(0, len(list_cont)):
-    if list_cont[i][:-5] != list_anti[i][:-5]:
-        print "FUCK"
-    #print list_cont[i]
-    #print list_anti[i]
     x = np.ones(len(vertices_lh))
-    y = np.ones(len(vertices_rh))
+    index = np.where(L1[n_lh] < 0.05)
+    index_neg = np.where(L2[n_lh] < 0.05)
+    if set(index[0]).intersection(index_neg[0]).__len__() != 0:
+        print "OVERLAP"
     
-    F = np.loadtxt(list_cont[i], delimiter = ',')    
-    E = np.loadtxt(list_anti[i], delimiter = ',')
 
-    K = np.loadtxt(list_CONT[i], delimiter = ',')
-    L = np.loadtxt(list_ANTI[i], delimiter = ',')
+    x[n_lh[index]] = L1[n_lh[index]]       
+    x[n_lh[index_neg]] = -1 * L2[n_lh[index_neg]]
 
-    if threshold:
-        
-        f_index = np.where(F[n_lh] < 0.05)
-        x[n_lh[f_index]] = F[n_lh[f_index]]
+    print np.shape(index)[1], np.shape(index_neg)[1]
+
     
-        e_index = np.where(E[n_lh] < 0.05)
-        x[n_lh[e_index]] = -1 * E[n_lh[e_index]]
+    if np.shape(index)[1] != 0 and np.shape(index_neg)[1] != 0:
+
+        x[np.where(x==1)] = x[n_lh[index]].max() + 0.001
+
+        
+        plotting.plot_surf_stat_map(vertices_lh, triangles_lh, fig_number, 
+                                    '221', stat_map = x, cmap='jet', azim=180, 
+                                    threshold=x[n_lh[index]].max(), 
+                                    figsize=(14, 10))
     
-        x[np.where(x==1)] = 0.06
-        #print x.max(), x.min()
+        plotting.plot_surf_stat_map(vertices_lh, triangles_lh, fig_number, 
+                                    '223', stat_map = x, cmap='jet', azim=0, 
+                                    threshold=x[n_lh[index]].max(), 
+                                    figsize=(14, 10))
+                               
+    del index, index_neg
+
+    y = np.ones(len(vertices_rh))        
+    index = np.where(R1[n_rh] < 0.05)
+    index_neg = np.where(R2[n_rh] < 0.05)
+    if set(index[0]).intersection(index_neg[0]).__len__() != 0:
+        print "OVERLAP" 
+
+    y[n_rh[index]] = R1[n_rh[index]]
+    y[n_rh[index_neg]] = -1 * R2[n_rh[index_neg]]
+    
+    print np.shape(index)[1], np.shape(index_neg)[1]
+    
+    if np.shape(index)[1] != 0 and np.shape(index_neg)[1] != 0:
         
-        k_index = np.where(K[n_rh] < 0.05)
-        y[n_rh[k_index]] = K[n_rh[k_index]]        
-        
-        l_index = np.where(L[n_rh] < 0.05)
-        y[n_rh[l_index]] = -1 * L[n_rh[l_index]]
+        y[np.where(y==1)] = y[n_rh[index]].max() + 0.001
 
-        y[np.where(y==1)] = 0.06
-
-        if np.shape(e_index)[1] != 0 and np.shape(f_index)[1] != 0 and np.shape(k_index)[1] != 0 and np.shape(l_index)[1] != 0:
-            print x.max(), x.min()
-
-            plot_surf_stat_map(vertices_lh, triangles_lh, o, '221', stat_map=x,
-                               cmap='jet', azim=180, threshold=0.05, 
-                               figsize=(10,10))
-            plot_surf_stat_map(vertices_lh, triangles_lh, o, '223', stat_map=x,
-                               cmap='jet', azim=0, threshold=0.05, 
-                               figsize=(10,10))
-                               
-            plot_surf_stat_map(vertices_rh, triangles_rh, o, '222', stat_map=y,
-                               cmap='jet', azim=0, threshold=0.05, 
-                               figsize=(10,10))
-
-            plot_surf_stat_map(vertices_lh, triangles_lh, o, '224', stat_map=y,
-                               cmap='jet', azim=180, threshold=0.05, 
-                               figsize=(10,10))
-                               
-                               
-        o += 1
-     
-     
-     
-       
-       
-
-#F = np.loadtxt(path + 'LH_01_dpv_ztstat_cfdrp_c3.csv', delimiter=',')
-#f_index = np.where(F[n_lh] < 0.05)
-#x[n_lh[f_index]] = F[n_lh[f_index]]
-#
-#E = np.loadtxt(path + 'LH_01_dpv_ztstat_cfdrp_c4.csv', delimiter=',')
-#e_index = np.where(E[n_lh] < 0.05)
-#x[n_lh[e_index]] = -1 * E[n_lh[e_index]]
-#
-#x[np.where(x==1)] = 0.06
-#
-#plot_surf_stat_map(vertices_lh, triangles_lh, 1, '221', stat_map=x, 
-#                   cmap='jet', azim=180,  threshold = 0.05, figsize=(10,10))
-#                   
-##
-#if set(e_index[0]).intersection(f_index[0]) != 0:
-#    print "OVERLAP" 
-
-
-
-
-
-
-
+        plotting.plot_surf_stat_map(vertices_rh, triangles_rh, fig_number, 
+                                    '222', stat_map = y, cmap='jet', azim=0, 
+                                    threshold=y[n_rh[index]].max(), 
+                                    figsize=(14, 10))
+    
+        plotting.plot_surf_stat_map(vertices_rh, triangles_rh, fig_number, 
+                                    '224', stat_map = y, cmap='jet', azim=180, 
+                                    threshold = y[n_rh[index]].max(), 
+                                    figsize=(14, 10))
+        plt.suptitle(fig_name)
+        plt.savefig(fig_path + fig_name[:-4] + '.png')
+    fig_number += 1
+    

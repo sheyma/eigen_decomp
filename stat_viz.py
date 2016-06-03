@@ -122,3 +122,19 @@ for result in results_list:
         plt.savefig(fig_path + fig_name[:-4] + '.png')
     fig_number += 1
     
+     
+A = get_mean(DATA, subject_list, mode, component=None)   
+  
+#B = np.array(DATA['100307']['aligned'])
+data_L[n_L] = A[0:29696, 3]
+data_R[n_R] = A[29696:,3]
+
+plotting.plot_surf_stat_map(verticesR, trianglesR, 3, '222', stat_map=data_R, cmap='jet',azim=0, figsize=(14, 10))
+plotting.plot_surf_stat_map(verticesR, trianglesR, 3, '224', stat_map=data_R, cmap='jet',azim=180, figsize=(14, 10))
+
+plotting.plot_surf_stat_map(verticesL, trianglesL, 3, '221', stat_map=data_L, cmap='jet',azim=180, figsize=(14, 10))
+plotting.plot_surf_stat_map(verticesL, trianglesL, 3, '223', stat_map=data_L, cmap='jet',azim=0, figsize=(14, 10))
+
+plt.suptitle('subject 1', fontsize=18)
+
+    
